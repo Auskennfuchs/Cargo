@@ -1,17 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using CargoEngine;
+using CargoEngine.Shader;
 
 namespace Cargo {
     public partial class Form1 : Form {
+
+        private SwapChain swapChain;
+
         public Form1() {
             InitializeComponent();
+            Renderer r1 = new Renderer();
+            swapChain = new SwapChain(this, r1);
+            var vertexShader = new VertexShader(r1, "assets/shader/shaders.hlsl","VSMain");
+            var pixelhader = new PixelShader(r1, "assets/shader/shaders.hlsl", "PSMain");
+        }
+
+        public void MainLoop() {
+            swapChain.Present();
         }
     }
 }
