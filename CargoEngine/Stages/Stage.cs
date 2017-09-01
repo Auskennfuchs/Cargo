@@ -13,17 +13,19 @@ namespace CargoEngine.Stages {
             get; private set;
         }
 
-        protected T currentState;
+        public T CurrentState {
+            get; private set;
+        }
 
         public Stage() {
             DesiredState = new T();
-            currentState = new T();
+            CurrentState = new T();
         }
 
         public void ApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {
             OnApplyDesiredState(dc, paramManager);
             DesiredState.ResetTracking();
-            currentState.Clone(DesiredState);
+            CurrentState.Clone(DesiredState);
         }
 
         public abstract void OnApplyDesiredState(DeviceContext dc, ParameterManager paramManager);
@@ -33,7 +35,7 @@ namespace CargoEngine.Stages {
         }
 
         public void ClearCurrentState() {
-            currentState.ClearState();
+            CurrentState.ClearState();
         }
     }
 }

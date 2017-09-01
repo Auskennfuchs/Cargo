@@ -1,7 +1,7 @@
 ﻿using SharpDX;
 
 namespace CargoEngine.Stages {
-    class RasterizerStageState : IStageState {
+    internal class RasterizerStageState : IStageState {
 
         public TStateMonitor<Viewport> Viewport {
             get; private set;
