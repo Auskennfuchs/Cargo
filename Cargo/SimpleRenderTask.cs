@@ -63,7 +63,6 @@ namespace Cargo {
             pipeline.ApplyInputResources();
             pipeline.ApplyShaderResources();
             pipeline.Draw(3, 0);
-
         }
     }
 }
