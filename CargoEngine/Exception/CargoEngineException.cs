@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace CargoEngine.Exception {
-    class CargoEngineException : System.Exception {
+    public class CargoEngineException : System.Exception {
         protected CargoEngineException(string message) : base(message)
         {
         }

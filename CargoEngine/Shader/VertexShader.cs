@@ -1,4 +1,5 @@
-﻿using CargoEngine.Exception;
+﻿using System.Windows.Forms;
+using CargoEngine.Exception;
 using CargoEngine.Parameter;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
@@ -18,6 +19,10 @@ namespace CargoEngine.Shader {
                 sFlags |= ShaderFlags.Debug;
 #endif
                 using (var bytecode = ShaderBytecode.CompileFromFile(file, entryfunction, "vs_5_0", sFlags, EffectFlags.None)) {
+                    if (bytecode.Message != null) {
+                        MessageBox.Show(bytecode.Message);
+                        return;
+                    }
                     InputSignature = ShaderSignature.GetInputSignature(bytecode);
                     VertexShaderPtr = new VShader(renderer.Device, bytecode);
                     ReflectBytecode(renderer, bytecode);

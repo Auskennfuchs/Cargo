@@ -10,6 +10,9 @@ namespace CargoEngine.Stages {
             if (DesiredState.PrimitiveTopology.NeedUpdate) {
                 dc.InputAssembler.PrimitiveTopology = DesiredState.PrimitiveTopology.State;
             }
+            if (DesiredState.VertexBuffers.NeedUpdate) {
+                dc.InputAssembler.SetVertexBuffers(DesiredState.VertexBuffers.StartSlot, DesiredState.VertexBuffers.ChangedStates);
+            }
         }
     }
 }

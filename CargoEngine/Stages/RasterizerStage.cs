@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CargoEngine.Parameter;
+using SharpDX.Direct3D11;
 
 namespace CargoEngine.Stages {
-    public class RasterizerStage {
+    public class RasterizerStage : Stage<RasterizerStageState> {
+        public override void OnApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {
+            if(DesiredState.RasterizerState.NeedUpdate) {
+                dc.Rasterizer.State = DesiredState.RasterizerState.State;
+            }
+            if(DesiredState.Viewport.NeedUpdate) {
+                dc.Rasterizer.SetViewport(DesiredState.Viewport.State);
+            }
+        }
     }
 }

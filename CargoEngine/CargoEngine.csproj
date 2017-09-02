@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -70,6 +71,7 @@
     <Compile Include="Event\EventManager.cs" />
     <Compile Include="Event\EventResize.cs" />
     <Compile Include="Exception\CargoEngineException.cs" />
+    <Compile Include="Geometry.cs" />
     <Compile Include="Parameter\ConstantBufferParameter.cs" />
     <Compile Include="Parameter\MatrixParameter.cs" />
     <Compile Include="Parameter\ParameterManager.cs" />
@@ -82,6 +84,8 @@
     <Compile Include="Parameter\Vector3Parameter.cs" />
     <Compile Include="RenderTarget.cs" />
     <Compile Include="RenderTask.cs" />
+    <Compile Include="Scene\Scene.cs" />
+    <Compile Include="Scene\SceneNode.cs" />
     <Compile Include="Shader\PixelShader.cs" />
     <Compile Include="Shader\ShaderBase.cs" />
     <Compile Include="Shader\VertexShader.cs" />

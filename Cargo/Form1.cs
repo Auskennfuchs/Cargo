@@ -7,6 +7,7 @@ namespace Cargo {
 
         private Renderer renderer;
         private SwapChain swapChain;
+        private RenderPipeline deferredPipeline;
 
         private SimpleRenderTask renderTask;
 
@@ -15,15 +16,17 @@ namespace Cargo {
             renderer = new Renderer();
             swapChain = new SwapChain(this, renderer);
 
-            renderTask = new SimpleRenderTask(swapChain.RenderTarget);
+            deferredPipeline = new RenderPipeline(renderer.Device);
 
-            var vertexShader = new VertexShader(renderer, "assets/shader/shaders.hlsl","VSMain");
-            var pixelhader = new PixelShader(renderer, "assets/shader/shaders.hlsl", "PSMain");
+            renderTask = new SimpleRenderTask(swapChain.RenderTarget);
         }
 
         public void MainLoop() {
-            renderTask.Render(renderer.ImmPipeline);
+            renderTask.Render(deferredPipeline);
+            deferredPipeline.FinishCommandList();
+            renderer.ImmPipeline.ExecuteCommandList(deferredPipeline.CommandList);
             swapChain.Present();
+            deferredPipeline.ReleaseCommandList();
         }
     }
 }
