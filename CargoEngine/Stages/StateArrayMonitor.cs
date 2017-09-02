@@ -29,6 +29,16 @@ namespace CargoEngine.Stages {
             get; private set;
         }
 
+        public T this[int i] {
+            get {
+                return States[i];
+            }
+
+            set {
+                SetState(i, value);
+            }
+        }
+
         private T[] changedStates;
 
         public T[] ChangedStates {
@@ -153,6 +163,16 @@ namespace CargoEngine.Stages {
             this.initialState = initialState;
             NumSlots = numSlots;
             ResetTracking();
+        }
+
+        public T this[int i] {
+            get {
+                return States[i];
+            }
+
+            set {
+                SetState(i, value);
+            }
         }
 
         public void SetState(int slot, T state) {

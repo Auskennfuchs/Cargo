@@ -4,6 +4,7 @@ using SharpDX;
 using SharpDX.DXGI;
 using VertexShader = CargoEngine.Shader.VertexShader;
 using PixelShader = CargoEngine.Shader.PixelShader;
+using CargoEngine.Shader;
 
 namespace Cargo {
     class SimpleRenderTask : RenderTask {
@@ -28,8 +29,8 @@ namespace Cargo {
             triangle = new Geometry();
             triangle.AddBuffer(Buffer.Create<Vector3>(Renderer.Instance.Device, BindFlags.VertexBuffer, tris), "POSITION", Format.R32G32B32_Float, Utilities.SizeOf<Vector3>());
 
-            vShader = new VertexShader(Renderer.Instance, "assets/shader/simple.hlsl", "VSMain");
-            pShader = new PixelShader(Renderer.Instance, "assets/shader/simple.hlsl", "PSMain");
+            vShader = ShaderLoader.LoadVertexShader(Renderer.Instance, "assets/shader/simple.hlsl", "VSMain");
+            pShader = ShaderLoader.LoadPixelShader(Renderer.Instance, "assets/shader/simple.hlsl", "PSMain");
 
             var rasterizerStateDescription = RasterizerStateDescription.Default();
             rasterizerStateDescription.CullMode = CullMode.None;
@@ -43,22 +44,22 @@ namespace Cargo {
 
         public override void Render(RenderPipeline pipeline) {
             pipeline.OutputMerger.ClearDesiredState();
-            pipeline.OutputMerger.DesiredState.RenderTarget.SetState(0, renderTarget.View);
+            pipeline.OutputMerger.RenderTarget[0] = renderTarget.View;
             pipeline.OutputMerger.ApplyRenderTargets(pipeline.DevContext);
             pipeline.ClearTargets(new SharpDX.Color4(0.0f, 0.0f, 0.0f, 1.0f), 1.0f, 0);
-            pipeline.InputAssembler.DesiredState.PrimitiveTopology.State = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-            pipeline.Rasterizer.DesiredState.RasterizerState.State = rasterizerState;
-            pipeline.InputAssembler.DesiredState.VertexBuffers.SetStates(0, triangle.BufferBindings.ToArray());
-            pipeline.Rasterizer.DesiredState.Viewport.State = renderTarget.Viewport;
-            pipeline.VertexShader.DesiredState.Shader.State = vShader;
-            pipeline.PixelShader.DesiredState.Shader.State = pShader;
+            pipeline.Rasterizer.RasterizerState = rasterizerState;
+            pipeline.Rasterizer.Viewport = renderTarget.Viewport;
+            pipeline.VertexShader.Shader = vShader;
+            pipeline.PixelShader.Shader = pShader;
 
             var inputLayout = Renderer.Instance.GetInputLayout(vShader);
             if(inputLayout==null) {
                 inputLayout = Renderer.Instance.AddInputLayout(vShader, triangle.Elements.ToArray());
             }
 
-            pipeline.InputAssembler.DesiredState.InputLayout.State = inputLayout;
+            triangle.Apply(pipeline);
+
+            pipeline.InputAssembler.InputLayout = inputLayout;
             pipeline.ApplyInputResources();
             pipeline.ApplyShaderResources();
             pipeline.Draw(3, 0);

@@ -11,10 +11,28 @@ namespace CargoEngine.Stages {
         NUM_SHADERSTAGES
     }
 
-    public abstract class ShaderStage : Stage<ShaderStageState> {
+    public abstract class ShaderStage<ShaderClass> : Stage<ShaderStageState<ShaderClass>> where ShaderClass : DeviceChild{
 
-        protected SharpDX.Direct3D11.Buffer[] cBuffers = new SharpDX.Direct3D11.Buffer[ShaderStageState.NUM_CONSTANTBUFFERS];
-        protected SharpDX.Direct3D11.ShaderResourceView[] SRVs = new ShaderResourceView[ShaderStageState.NUM_SHADERRESOURCES];
+        public TStateArrayMonitor<ConstantBuffer> ConstantBuffer {
+            get {
+                return DesiredState.ConstantBuffer;
+            }
+        }
+
+        public TStateArrayMonitor<ShaderResourceView> Resource {
+            get {
+                return DesiredState.Resources;
+            }
+        }
+
+        public TStateArrayMonitor<SamplerState> Sampler {
+            get {
+                return DesiredState.Samplers;
+            }
+        }
+
+        protected SharpDX.Direct3D11.Buffer[] cBuffers = new SharpDX.Direct3D11.Buffer[ShaderStageState<ShaderClass>.NUM_CONSTANTBUFFERS];
+        protected SharpDX.Direct3D11.ShaderResourceView[] SRVs = new ShaderResourceView[ShaderStageState<ShaderClass>.NUM_SHADERRESOURCES];
 
         public override void OnApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {
             if (DesiredState.Shader.NeedUpdate) {

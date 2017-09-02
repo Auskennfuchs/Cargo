@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CargoEngine.Exception;
+using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using Buffer = SharpDX.Direct3D11.Buffer;
@@ -30,10 +31,15 @@ namespace CargoEngine {
             get; private set;
         }
 
+        public PrimitiveTopology Topology {
+            get; set;
+        }
+
         public Geometry() {
             Buffers = new List<Buffer>();
             Elements = new List<InputElement>();
             BufferBindings = new List<VertexBufferBinding>();
+            Topology = PrimitiveTopology.TriangleList;
         }
 
         ~Geometry() {
@@ -72,6 +78,11 @@ namespace CargoEngine {
         public void SetIndexBuffer(Buffer indices, int numIndices) {
             Indices = indices;
             NumIndices = numIndices;
+        }
+
+        public void Apply(RenderPipeline pipeline) {
+            pipeline.InputAssembler.PrimitiveTopology = Topology;
+            pipeline.InputAssembler.VertexBuffer.SetStates(0, BufferBindings.ToArray());
         }
     }
 }

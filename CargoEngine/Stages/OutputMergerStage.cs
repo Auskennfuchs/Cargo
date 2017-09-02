@@ -1,13 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CargoEngine.Parameter;
+﻿using CargoEngine.Parameter;
 using SharpDX.Direct3D11;
 
 namespace CargoEngine.Stages {
     public class OutputMergerStage : Stage<OutputMergerStageState> {
+
+        public BlendState BlendState {
+            get {
+                return DesiredState.BlendState.State;
+            }
+            set {
+                DesiredState.BlendState.State = value;
+            }
+        }
+
+        public TStateArrayMonitor<RenderTargetView> RenderTarget {
+            get {
+                return DesiredState.RenderTarget;
+            }
+        }
+
+        public DepthStencilView DepthStencil {
+            get {
+                return DesiredState.DepthStencilView.State;
+            }
+            set {
+                DesiredState.DepthStencilView.State = value;
+            }
+        }
+
         public override void OnApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {
             dc.OutputMerger.BlendState = DesiredState.BlendState.State;
             ApplyRenderTargets(dc);

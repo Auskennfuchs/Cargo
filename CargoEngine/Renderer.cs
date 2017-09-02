@@ -61,6 +61,9 @@ namespace CargoEngine {
         }
 
         public InputLayout AddInputLayout(VertexShader vShader,InputElement[] elements) {
+            if(vShader==null) {
+                return null;
+            }
             var il = new InputLayout(Device, vShader.InputSignature.Data, elements);
             inputLayouts[vShader.ID] = il;
             return il;

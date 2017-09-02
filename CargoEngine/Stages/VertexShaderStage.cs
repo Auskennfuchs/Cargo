@@ -3,11 +3,20 @@ using SharpDX.Direct3D11;
 using VertexShader = CargoEngine.Shader.VertexShader;
 
 namespace CargoEngine.Stages {
-    public class VertexShaderStage : ShaderStage {
+    public class VertexShaderStage : ShaderStage<SharpDX.Direct3D11.VertexShader> {
+
+        public VertexShader Shader {
+            get {
+                return DesiredState.Shader.State as VertexShader;
+            }
+            set {
+                DesiredState.Shader.State = value;
+            }
+        }
 
         protected override void BindShader(DeviceContext dc, ParameterManager paramManager) {
             if (DesiredState.Shader.State != null) {
-                dc.VertexShader.Set(((VertexShader)DesiredState.Shader.State).VertexShaderPtr);
+                dc.VertexShader.Set(((VertexShader)DesiredState.Shader.State).ShaderPtr);
             } else {
                 dc.VertexShader.Set(null);
             }

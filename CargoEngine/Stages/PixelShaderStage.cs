@@ -3,11 +3,20 @@ using SharpDX.Direct3D11;
 using PixelShader = CargoEngine.Shader.PixelShader;
 
 namespace CargoEngine.Stages {
-    public class PixelShaderStage : ShaderStage {
+    public class PixelShaderStage : ShaderStage<SharpDX.Direct3D11.PixelShader> {
+
+        public PixelShader Shader {
+            get {
+                return DesiredState.Shader.State as PixelShader;
+            }
+            set {
+                DesiredState.Shader.State = value;
+            }
+        }
 
         protected override void BindShader(DeviceContext dc, ParameterManager paramManager) {
             if (DesiredState.Shader.State != null) {
-                dc.PixelShader.Set(((PixelShader)DesiredState.Shader.State).PixelShaderPtr);
+                dc.PixelShader.Set(((PixelShader)DesiredState.Shader.State).ShaderPtr);
             } else {
                 dc.PixelShader.Set(null);
             }

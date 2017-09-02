@@ -2,12 +2,12 @@
 using SharpDX.Direct3D11;
 
 namespace CargoEngine.Stages {
-    public class ShaderStageState : IStageState {
+    public class ShaderStageState<ShaderClass> : IStageState where ShaderClass : DeviceChild { 
         public static int NUM_CONSTANTBUFFERS = 128;
         public static int NUM_SHADERRESOURCES = 128;
         public static int NUM_SAMPLERS = 16;
 
-        public TStateMonitor<ShaderBase> Shader {
+        public TStateMonitor<ShaderBase<ShaderClass>> Shader {
             get; private set;
         }
 
@@ -23,8 +23,8 @@ namespace CargoEngine.Stages {
             get; private set;
         }
 
-        private ShaderStageState sisterState;
-        public ShaderStageState SisterState {
+        private ShaderStageState<ShaderClass> sisterState;
+        public ShaderStageState<ShaderClass> SisterState {
             get { return sisterState; }
             set {
                 sisterState = value;
@@ -33,7 +33,7 @@ namespace CargoEngine.Stages {
         }
 
         public ShaderStageState() {
-            Shader = new TStateMonitor<ShaderBase>(null);
+            Shader = new TStateMonitor<ShaderBase<ShaderClass>>(null);
             ConstantBuffer = new TStateArrayMonitor<ConstantBuffer>(NUM_CONSTANTBUFFERS, null);
             Resources = new TStateArrayMonitor<ShaderResourceView>(NUM_SHADERRESOURCES, null);
             Samplers = new TStateArrayMonitor<SamplerState>(NUM_SAMPLERS, null);
@@ -54,15 +54,15 @@ namespace CargoEngine.Stages {
         }
 
         public void Clone(IStageState src) {
-            Shader.State = ((ShaderStageState)src).Shader.State;
+            Shader.State = ((ShaderStageState<ShaderClass>)src).Shader.State;
             for (var i = 0; i < NUM_CONSTANTBUFFERS; i++) {
-                ConstantBuffer.States[i] = ((ShaderStageState)src).ConstantBuffer.States[i];
+                ConstantBuffer.States[i] = ((ShaderStageState<ShaderClass>)src).ConstantBuffer.States[i];
             }
             for (var i = 0; i < NUM_SHADERRESOURCES; i++) {
-                Resources.States[i] = ((ShaderStageState)src).Resources.States[i];
+                Resources.States[i] = ((ShaderStageState<ShaderClass>)src).Resources.States[i];
             }
             for (var i = 0; i < NUM_SAMPLERS; i++) {
-                Samplers.States[i] = ((ShaderStageState)src).Samplers.States[i];
+                Samplers.States[i] = ((ShaderStageState<ShaderClass>)src).Samplers.States[i];
             }
         }
     }

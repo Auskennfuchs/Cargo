@@ -88,6 +88,7 @@
     <Compile Include="Scene\SceneNode.cs" />
     <Compile Include="Shader\PixelShader.cs" />
     <Compile Include="Shader\ShaderBase.cs" />
+    <Compile Include="Shader\ShaderLoader.cs" />
     <Compile Include="Shader\VertexShader.cs" />
     <Compile Include="Stages\InputAssemblerStage.cs" />
     <Compile Include="Stages\InputAssemblerStageState.cs" />
