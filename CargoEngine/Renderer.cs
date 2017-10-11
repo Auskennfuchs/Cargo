@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CargoEngine.Exception;
+using SharpDX;
 using SharpDX.Direct3D11;
 using VertexShader = CargoEngine.Shader.VertexShader;
 
 namespace CargoEngine {
+
     public class Renderer: IDisposable {
+
+        private const int NUM_THREADS = 4;
 
         public static Renderer Instance {
             get; private set;
@@ -23,7 +27,11 @@ namespace CargoEngine {
             get; private set;
         }
 
+        private RenderPipeline[] deferredPipelines = new RenderPipeline[NUM_THREADS];
+
         private Dictionary<int,InputLayout> inputLayouts;
+
+        private Queue<RenderTask> taskQueue = new Queue<RenderTask>();
 
         public Renderer() {
             if(Instance!=null) {
@@ -41,33 +49,52 @@ namespace CargoEngine {
             ImmPipeline = new RenderPipeline(devContext);
 
             inputLayouts = new Dictionary<int, InputLayout>();
-        }
 
-        ~Renderer() {
-            this.Dispose();
+            for(var i = 0; i < NUM_THREADS; i++) {
+                var pipeline = new RenderPipeline(Device);
+                deferredPipelines[i] = pipeline;
+            }
         }
 
         public void Dispose() {
+            foreach(var rp in deferredPipelines) {
+                rp.Dispose();
+            }
             if (Device != null) {
                 Device.Dispose();
             }
         }
 
-        public InputLayout GetInputLayout(VertexShader vShader) {
-            if (vShader != null && inputLayouts.ContainsKey(vShader.ID)) {
-                return inputLayouts[vShader.ID];
-            }
-            return null;
+        public void QueueTask(RenderTask task) {
+            taskQueue.Enqueue(task);
         }
 
-        public InputLayout AddInputLayout(VertexShader vShader,InputElement[] elements) {
-            if(vShader==null) {
-                return null;
+        public void ExecuteTasks() {
+            var taskCount = taskQueue.Count;
+            for (int i = 0, count=0; i < taskCount; i+=count) {
+                var j = 0;
+                for(; j < NUM_THREADS && i + j < taskCount; j++) {
+                    count++;
+                    var task = taskQueue.Dequeue();
+                    task.Render(deferredPipelines[0]);
+                }
+                deferredPipelines[0].FinishCommandList();
+                ImmPipeline.ExecuteCommandList(deferredPipelines[0].CommandList);
+                deferredPipelines[0].ReleaseCommandList();
+/*                for (var k = 0; k < j; k++) {
+                    deferredPipelines[k].FinishCommandList();
+                    ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
+                    deferredPipelines[k].ReleaseCommandList();
+                }*/
             }
-            var il = new InputLayout(Device, vShader.InputSignature.Data, elements);
-            inputLayouts[vShader.ID] = il;
-            return il;
+
+            taskQueue.Clear();
         }
 
+        public void SetGlobalParameter(string name,Matrix mat) {
+            foreach(var pipeline in deferredPipelines) {
+                pipeline.ParameterManager.SetParameter(name, mat);
+            }
+        }
     }
 }

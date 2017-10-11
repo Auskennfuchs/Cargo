@@ -58,13 +58,10 @@ namespace CargoEngine {
             InputAssembler = new Stages.InputAssemblerStage();
         }
 
-        ~RenderPipeline() {
-            this.Dispose();
-        }
-
         public void Dispose() {
             if(DevContext!=null) {
                 DevContext.Dispose();
+                DevContext = null;
             }
         }
 
@@ -98,7 +95,9 @@ namespace CargoEngine {
         }
 
         public void ReleaseCommandList() {
-            CommandList.Dispose();
+            if (CommandList != null) {
+                CommandList.Dispose();
+            }
         }
 
         public void ApplyRenderTargets() {

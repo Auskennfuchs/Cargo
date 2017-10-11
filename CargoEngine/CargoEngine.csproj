@@ -65,6 +65,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Event\KeyEvent.cs" />
+    <Compile Include="Event\MouseEvent.cs" />
+    <Compile Include="Executors\DrawExecutor.cs" />
+    <Compile Include="Executors\Executor.cs" />
+    <Compile Include="Scene\Camera.cs" />
     <Compile Include="ConstantBuffer.cs" />
     <Compile Include="Event\Event.cs" />
     <Compile Include="Event\EventListener.cs" />
@@ -84,6 +89,11 @@
     <Compile Include="Parameter\Vector3Parameter.cs" />
     <Compile Include="RenderTarget.cs" />
     <Compile Include="RenderTask.cs" />
+    <Compile Include="Scene\EntityComponent.cs" />
+    <Compile Include="Scene\EventListenerComponent.cs" />
+    <Compile Include="Scene\FreeLookComponent.cs" />
+    <Compile Include="Scene\FreeMoveComponent.cs" />
+    <Compile Include="Scene\GeometryComponent.cs" />
     <Compile Include="Scene\Scene.cs" />
     <Compile Include="Scene\SceneNode.cs" />
     <Compile Include="Shader\PixelShader.cs" />
@@ -104,6 +114,8 @@
     <Compile Include="Stages\StateMonitor.cs" />
     <Compile Include="Stages\VertexShaderStage.cs" />
     <Compile Include="SwapChain.cs" />
+    <Compile Include="Timer.cs" />
+    <Compile Include="Transform.cs" />
     <Compile Include="Win32Native.cs" />
   </ItemGroup>
   <ItemGroup />

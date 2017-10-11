@@ -1,6 +1,7 @@
 ﻿using CargoEngine.Parameter;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using SharpDX.DXGI;
 
 namespace CargoEngine.Stages {
     public class InputAssemblerStage : Stage<InputAssemblerStageState> {
@@ -29,6 +30,24 @@ namespace CargoEngine.Stages {
             }
         }
 
+        public Buffer IndexBuffer {
+            get {
+                return DesiredState.IndexBuffer.State;
+            }
+            set {
+                DesiredState.IndexBuffer.State = value;
+            }
+        }
+
+        public Format IndexBufferFormat {
+            get {
+                return DesiredState.IndexBufferFormat.State;
+            }
+            set {
+                DesiredState.IndexBufferFormat.State = value;
+            }
+        }
+
         public override void OnApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {
             if (DesiredState.InputLayout.NeedUpdate) {
                 dc.InputAssembler.InputLayout = DesiredState.InputLayout.State;
@@ -38,6 +57,10 @@ namespace CargoEngine.Stages {
             }
             if (DesiredState.VertexBuffers.NeedUpdate) {
                 dc.InputAssembler.SetVertexBuffers(DesiredState.VertexBuffers.StartSlot, DesiredState.VertexBuffers.ChangedStates);
+            }
+
+            if(DesiredState.IndexBuffer.NeedUpdate) {
+                dc.InputAssembler.SetIndexBuffer(DesiredState.IndexBuffer.State, DesiredState.IndexBufferFormat.State, 0);
             }
         }
     }

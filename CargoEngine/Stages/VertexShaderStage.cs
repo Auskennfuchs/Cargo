@@ -16,7 +16,9 @@ namespace CargoEngine.Stages {
 
         protected override void BindShader(DeviceContext dc, ParameterManager paramManager) {
             if (DesiredState.Shader.State != null) {
-                dc.VertexShader.Set(((VertexShader)DesiredState.Shader.State).ShaderPtr);
+                var vs = (VertexShader)DesiredState.Shader.State;
+                dc.VertexShader.Set(vs.ShaderPtr);
+                DesiredState.ConstantBuffer.SetStates(0,vs.ConstantBuffers);
             } else {
                 dc.VertexShader.Set(null);
             }

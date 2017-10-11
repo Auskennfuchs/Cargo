@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CargoEngine.Stages {
     public class TStateArrayMonitor<T> where T : class {
@@ -84,6 +85,13 @@ namespace CargoEngine.Stages {
         public void SetStates(int startSlot, T[] states) {
             var i = startSlot;
             foreach(var s in states) {
+                SetState(i++, s);
+            }
+        }
+
+        public void SetStates(int startSlot, List<T> states) {
+            var i = startSlot;
+            foreach (var s in states) {
                 SetState(i++, s);
             }
         }

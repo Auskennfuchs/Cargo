@@ -6,7 +6,7 @@ using SharpDX.Direct3D11;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
 namespace CargoEngine {
-    public class ConstantBuffer : IDisposable{
+    public class ConstantBuffer : IDisposable {
         public Buffer Buffer {
             get;
             private set;
