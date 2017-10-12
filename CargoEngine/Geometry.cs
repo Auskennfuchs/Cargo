@@ -78,10 +78,10 @@ namespace CargoEngine {
             BufferBindings.Add(bufferBinding);
         }
 
-        public void SetIndexBuffer(Buffer indices, int numIndices) {
+        public void SetIndexBuffer(Buffer indices, int numIndices, Format format = Format.R32_UInt) {
             Indices = indices;
             NumIndices = numIndices;
-            indexFormat = NumIndices > 65535 ? Format.R32_UInt : Format.R16_UInt;
+            indexFormat = format;
         }
 
         public void Apply(RenderPipeline pipeline) {

@@ -5,8 +5,6 @@ using CargoEngine.Event;
 using CargoEngine.Scene;
 using SharpDX;
 using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using Buffer = SharpDX.Direct3D11.Buffer;
 
 namespace Cargo {
     public partial class Form1 : Form {
@@ -34,24 +32,6 @@ namespace Cargo {
             swapChain.RenderTarget.AddDepthStencil();
 
             scene = new Scene();
-            var tris = new Vector3[4] {
-                new Vector3(-1.0f, 1.0f,1.0f),
-                new Vector3(-1.0f,-1.0f,1.0f),
-                new Vector3( 1.0f,-1.0f,1.0f),
-                new Vector3( 1.0f, 1.0f,1.0f),
-            };
-
-            var indices = new short[6] {
-                0,2,1,
-                0,3,2
-            };
-            var geo = new GeometryComponent();
-            geo.Executor.Geometry.AddBuffer(Buffer.Create<Vector3>(Renderer.Instance.Device, BindFlags.VertexBuffer, tris), "POSITION", Format.R32G32B32_Float, Utilities.SizeOf<Vector3>());
-            geo.Executor.Geometry.SetIndexBuffer(Buffer.Create<short>(Renderer.Instance.Device, BindFlags.IndexBuffer, indices), indices.Length);
-            var node = new SceneNode();
-            node.AddComponent(geo);
-            scene.RootNode.AddChild(node);
-            geo.Transform.Position += new Vector3(0.0f, 0, 0);
 
             var terrain = new Terrain();
             scene.RootNode.AddChild(terrain);

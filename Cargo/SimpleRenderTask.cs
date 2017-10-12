@@ -23,7 +23,7 @@ namespace Cargo {
             pShader = ShaderLoader.LoadPixelShader(Renderer.Instance, "assets/shader/simple.hlsl", "PSMain");
 
             var rasterizerStateDescription = RasterizerStateDescription.Default();
-            rasterizerStateDescription.CullMode = CullMode.None;
+            rasterizerStateDescription.CullMode = CullMode.Back;
            rasterizerState = new RasterizerState(Renderer.Instance.Device, rasterizerStateDescription);
         }
 
