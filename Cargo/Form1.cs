@@ -63,6 +63,8 @@ namespace Cargo {
 
             timer.Start();
             AddEvents();
+
+            var fl = cam.GetComponent<FreeLookComponent>();
         }
 
         public void MainLoop() {

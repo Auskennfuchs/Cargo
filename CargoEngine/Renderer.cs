@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CargoEngine.Exception;
 using SharpDX;
 using SharpDX.Direct3D11;
-using VertexShader = CargoEngine.Shader.VertexShader;
 
 namespace CargoEngine {
 

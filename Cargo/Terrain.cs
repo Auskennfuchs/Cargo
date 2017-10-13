@@ -6,10 +6,12 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
-namespace Cargo {
-    class Terrain : SceneNode {
+namespace Cargo
+{
+    class Terrain : SceneNode
+    {
         private const int MAP_SIZE = 513;
-        private const int CHUNK_SIZE = 64;
+        private const int CHUNK_SIZE = 256;
         public Terrain() {
             var points = GenerateTerrain();
 
@@ -18,7 +20,7 @@ namespace Cargo {
             var triPoints = new Vector3[mapSize, mapSize];
             for (var z = 0; z < mapSize; z++) {
                 for (var x = 0; x < mapSize; x++) {
-                    triPoints[x, z] = new Vector3(x, points[x, z] - 128.0f, z);
+                    triPoints[x, z] = new Vector3(x, points[x, z] - 128.0f, MAP_SIZE - z);
                 }
             }
 
@@ -57,24 +59,24 @@ namespace Cargo {
                     if (x < mapSize - 1 && y < mapSize - 1) {
                         var v1 = points[x, y] - points[x + 1, y];
                         var v2 = points[x, y] - points[x, y + 1];
-                        normal += Vector3.Cross(v2, v1);
+                        normal += Vector3.Cross(v1, v2);
                     }
                     if (x > 0 && y < mapSize - 1) {
                         var v1 = points[x - 1, y] - points[x, y];
                         var v2 = points[x, y] - points[x, y + 1];
-                        normal += Vector3.Cross(v2, v1);
+                        normal += Vector3.Cross(v1, v2);
                     }
 
                     if (x > 0 && y > 0) {
                         var v1 = points[x - 1, y] - points[x, y];
                         var v2 = points[x, y - 1] - points[x, y];
-                        normal += Vector3.Cross(v2, v1);
+                        normal += Vector3.Cross(v1, v2);
                     }
 
                     if (x < mapSize - 1 && y > 0) {
                         var v1 = points[x, y] - points[x + 1, y];
                         var v2 = points[x, y - 1] - points[x, y];
-                        normal += Vector3.Cross(v2, v1);
+                        normal += Vector3.Cross(v1, v2);
                     }
 
                     normal.Normalize();
@@ -86,7 +88,8 @@ namespace Cargo {
         }
     }
 
-    class TerrainChunk : SceneNode {
+    class TerrainChunk : SceneNode
+    {
         public TerrainChunk(Vector3[,] points, Vector3[,] normals, int chunkSize, int offsetX, int offsetY) {
             var mapSize = chunkSize + 1;
             var triPoints = new Vector3[mapSize * mapSize];
@@ -103,12 +106,12 @@ namespace Cargo {
             for (var y = 0; y < mapSize - 1; y++) {
                 for (var x = 0; x < mapSize - 1; x++) {
                     indices[count++] = x + y * mapSize;
-                    indices[count++] = x + (y + 1) * mapSize;
                     indices[count++] = x + 1 + y * mapSize;
+                    indices[count++] = x + (y + 1) * mapSize;
 
                     indices[count++] = x + (y + 1) * mapSize;
-                    indices[count++] = x + 1 + (y + 1) * mapSize;
                     indices[count++] = x + 1 + y * mapSize;
+                    indices[count++] = x + 1 + (y + 1) * mapSize;
                 }
             }
 
