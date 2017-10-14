@@ -28,8 +28,21 @@ namespace CargoEngine.Stages {
             }
         }
 
+        public DepthStencilState DepthStencilState {
+            get {
+                return DesiredState.DepthStencilState.State;
+            }
+            set {
+                DesiredState.DepthStencilState.State = value;
+            }
+        }
+
         public override void OnApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {
             dc.OutputMerger.BlendState = DesiredState.BlendState.State;
+            if(DesiredState.DepthStencilState.NeedUpdate) {
+                dc.OutputMerger.DepthStencilState = DesiredState.DepthStencilState.State;
+                DesiredState.DepthStencilState.ResetTracking();
+            }
             ApplyRenderTargets(dc);
         }
 

@@ -43,6 +43,7 @@ namespace CargoEngine.Stages {
                 UpdateConstantBufferArray();
                 BindConstantBuffers(dc, paramManager);
             }
+            UpdateShaderResources(paramManager);
             if (DesiredState.Resources.NeedUpdate) {
                 BindShaderResources(dc);
             }
@@ -67,6 +68,14 @@ namespace CargoEngine.Stages {
                     cBuffers[i] = DesiredState.ConstantBuffer.States[slotPos].Buffer;
                 } else {
                     cBuffers[i] = null;
+                }
+            }
+        }
+
+        private void UpdateShaderResources(ParameterManager paramManager) {
+            if(DesiredState.Shader.State!=null) {
+                foreach(var tex in DesiredState.Shader.State.Textures) {
+                    DesiredState.Resources.SetState(tex.Key, paramManager.GetSRVParameter(tex.Value));
                 }
             }
         }

@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeferredRenderTask.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +101,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="assets\shader\deferredCleanup.hlsl" />
+    <Content Include="assets\shader\deferredCombine.hlsl" />
+    <Content Include="assets\shader\deferredRender - Copy.hlsl" />
+    <Content Include="assets\shader\deferredRender.hlsl" />
     <Content Include="assets\shader\simple.hlsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

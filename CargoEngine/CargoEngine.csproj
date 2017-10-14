@@ -70,6 +70,7 @@
     <Compile Include="Event\MouseEvent.cs" />
     <Compile Include="Executors\DrawExecutor.cs" />
     <Compile Include="Executors\Executor.cs" />
+    <Compile Include="RenderTargetGroup.cs" />
     <Compile Include="Scene\Camera.cs" />
     <Compile Include="ConstantBuffer.cs" />
     <Compile Include="Event\Event.cs" />

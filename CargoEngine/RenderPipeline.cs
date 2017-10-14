@@ -118,6 +118,10 @@ namespace CargoEngine {
             InputAssembler.ApplyDesiredState(DevContext, ParameterManager);
         }
 
+        public void ApplyOutputResources() {
+            OutputMerger.ApplyDesiredState(DevContext, ParameterManager);
+        }
+
         public void ApplyShaderResources() {
             VertexShader.ApplyDesiredState(DevContext, ParameterManager);
             PixelShader.ApplyDesiredState(DevContext, ParameterManager);

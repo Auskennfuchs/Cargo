@@ -16,10 +16,15 @@ namespace CargoEngine.Stages {
             get; private set;
         }
 
+        public TStateMonitor<DepthStencilState> DepthStencilState {
+            get; private set;
+        }
+
         public OutputMergerStageState() {
             BlendState = new TStateMonitor<SharpDX.Direct3D11.BlendState>(null);
             RenderTarget = new TStateArrayMonitor<RenderTargetView>(NUM_RENDERTARGETS, null);
             DepthStencilView = new TStateMonitor<SharpDX.Direct3D11.DepthStencilView>(null);
+            DepthStencilState = new TStateMonitor<SharpDX.Direct3D11.DepthStencilState>(null);
         }
 
         public void ClearState() {
