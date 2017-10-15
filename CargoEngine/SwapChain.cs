@@ -52,7 +52,7 @@ namespace CargoEngine
                 IsWindowed = true,
                 ModeDescription = new ModeDescription(form.ClientSize.Width, form.ClientSize.Height, new Rational(0, 1), Format.R8G8B8A8_UNorm),
                 OutputHandle = form.Handle,
-                SampleDescription = new SampleDescription(2, 0),
+                SampleDescription = new SampleDescription(1, 0),
                 SwapEffect = SwapEffect.Discard
             };
 
@@ -60,7 +60,7 @@ namespace CargoEngine
                 swapChain = new DXSwapChain(factory, renderer.Device, swapChainDescriptor);
             }
             using (var resource = Resource.FromSwapChain<Texture2D>(swapChain, 0)) {
-                RenderTarget = new RenderTargetGroup(this, resource);
+                RenderTarget = new RenderTargetGroup(resource);
             }
 
             using (var fac = swapChain.GetParent<Factory>()) {
@@ -121,9 +121,15 @@ namespace CargoEngine
         }
 
         private void DoResize(int width, int height) {
-            RenderTarget.Resize(width, height);
-            swapChain.ResizeBuffers(1, width, height, Format.R8G8B8A8_UNorm, SwapChainFlags.AllowModeSwitch);
-            RenderTarget.UpdateSlot(0, null, new RenderTargetView(Renderer.Instance.Device, Resource.FromSwapChain<Texture2D>(swapChain,0)));
+            var rt = RenderTarget.RenderTargets[0];
+            rt.Clear();
+            try {
+                swapChain.ResizeBuffers(1, width, height, Format.Unknown, SwapChainFlags.AllowModeSwitch);
+            }catch(SharpDXException ex) {
+            }
+            using (var tex = Resource.FromSwapChain<Texture2D>(swapChain, 0)) {
+                rt.Update(null, new RenderTargetView(Renderer.Instance.Device, tex));
+            }
             Resize?.Invoke(this, new Event.SResizeEvent {
                 Size = new System.Drawing.Size(width, height)
             });

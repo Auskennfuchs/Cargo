@@ -34,7 +34,7 @@ namespace Cargo {
 
         public override void Render(RenderPipeline pipeline) {
             pipeline.OutputMerger.ClearDesiredState();
-            pipeline.OutputMerger.RenderTarget[0] = renderTarget.RenderTargets[0];
+            pipeline.OutputMerger.RenderTarget[0] = renderTarget.RenderTargets[0].View;
             pipeline.OutputMerger.DepthStencil = renderTarget.DepthStencilView;
             pipeline.OutputMerger.ApplyRenderTargets(pipeline.DevContext);
             pipeline.ClearTargets(new Color4(0.2f, 0.2f, 0.2f, 1.0f), 1.0f, 0);

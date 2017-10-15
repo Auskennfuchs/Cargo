@@ -3,19 +3,113 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CargoEngine
 {
+
+    public class RenderTarget : IDisposable
+    {
+        public ShaderResourceView SRV {
+            get; private set;
+        }
+
+        public RenderTargetView View {
+            get; private set;
+        }
+
+        public int Width {
+            get; private set;
+        }
+
+        public int Height {
+            get; private set;
+        }
+
+        public Format Format {
+            get; private set;
+        }
+
+        public RenderTarget(ShaderResourceView srv, RenderTargetView rtv) {
+            Update(srv, rtv);
+        }
+
+        public RenderTarget(Texture2D tex) {
+            Width = tex.Description.Width;
+            Height = tex.Description.Height;
+            Format = tex.Description.Format;
+            View = new RenderTargetView(Renderer.Instance.Device, tex);
+            if (tex.Description.BindFlags.HasFlag(BindFlags.ShaderResource)) {
+                SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
+            }
+        }
+
+        public RenderTarget(int width, int height, Format format) {
+            Width = width;
+            Height = height;
+            Format = format;
+            var tex = CreateRenderTargetTexture();
+            View = new RenderTargetView(Renderer.Instance.Device, tex);
+            SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
+        }
+
+        public void Dispose() {
+            Clear();
+        }
+
+        public void Clear() {
+            if (View != null) {
+                View.Dispose();
+                View = null;
+            }
+            if (SRV != null) {
+                SRV.Dispose();
+                SRV = null;
+            }            
+        }
+
+        public void Resize(int newWidth, int newHeight) {
+            Clear();
+            Width = newWidth;
+            Height = newHeight;
+            var tex = CreateRenderTargetTexture();
+            View = new RenderTargetView(Renderer.Instance.Device, tex);
+            SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
+        }
+
+        public void Update(ShaderResourceView srv, RenderTargetView rtv) {
+            Clear();
+            using (var tex = rtv.ResourceAs<Texture2D>()) {
+                Width = tex.Description.Width;
+                Height = tex.Description.Height;
+                Format = tex.Description.Format;
+                SRV = srv;
+                View = rtv;
+            }
+        }
+
+        private Texture2D CreateRenderTargetTexture() {
+            return new Texture2D(Renderer.Instance.Device, new Texture2DDescription() {
+                ArraySize = 1,
+                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = Format,
+                Height = Height,
+                Width = Width,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                Usage = ResourceUsage.Default,
+                SampleDescription = new SampleDescription(1, 0) // no MSAA
+            });
+        }
+    }
+
     public class RenderTargetGroup : IDisposable
     {
 
-        public List<RenderTargetView> RenderTargets {
+        public List<RenderTarget> RenderTargets {
             get; private set;
-        } = new List<RenderTargetView>();
-
-        public List<ShaderResourceView> ShaderResourceViews {
-            get; private set;
-        } = new List<ShaderResourceView>();
+        } = new List<RenderTarget>();
 
         public DepthStencilView DepthStencilView {
             get; private set;
@@ -45,37 +139,33 @@ namespace CargoEngine
             Viewport = new Viewport(0, 0, width, height);
         }
 
-        public RenderTargetGroup(SwapChain swapChain, Format firstFormat) : this(swapChain.RenderTarget.Viewport.Width, swapChain.RenderTarget.Viewport.Height, firstFormat) {
+        public RenderTargetGroup(SwapChain swapChain, Format firstFormat) : this(swapChain.Viewport.Width, swapChain.Viewport.Height, firstFormat) {
             swapChain.Resize += (o, e) => {
                 Resize(e.Size.Width, e.Size.Height);
             };
         }
 
-        public RenderTargetGroup(SwapChain swapChain, Texture2D tex) {
+        public RenderTargetGroup(SwapChain swapChain, Texture2D tex) : this(tex) {
+            swapChain.Resize += (o, e) => {
+                Resize(e.Size.Width, e.Size.Height);
+            };
+        }
+
+        public RenderTargetGroup(Texture2D tex) {
             Width = tex.Description.Width;
             Height = tex.Description.Height;
             Viewport = new Viewport(0, 0, Width, Height);
             AddRenderTarget(tex);
-
-            swapChain.Resize += (o, e) => {
-                Resize(e.Size.Width, e.Size.Height);
-            };
         }
 
         public void AddRenderTarget(Format format) {
-            using (var t = CreateRenderTargetTexture(format)) {
-                var rtv = new RenderTargetView(Renderer.Instance.Device, t);
-                RenderTargets.Add(rtv);
-                var srv = new ShaderResourceView(Renderer.Instance.Device, t);
-                ShaderResourceViews.Add(srv);
-            }
+            var rtv = new RenderTarget(Width, Height, format);
+            RenderTargets.Add(rtv);
         }
 
         public void AddRenderTarget(Texture2D tex) {
-            var rtv = new RenderTargetView(Renderer.Instance.Device, tex);
+            var rtv = new RenderTarget(tex);
             RenderTargets.Add(rtv);
-//            var srv = new ShaderResourceView(Renderer.Instance.Device, tex);
-            ShaderResourceViews.Add(null);
         }
 
         private Texture2D CreateRenderTargetTexture(Format format) {
@@ -96,9 +186,6 @@ namespace CargoEngine
         public void Dispose() {
             foreach (var rt in RenderTargets) {
                 rt.Dispose();
-            }
-            foreach (var srv in ShaderResourceViews) {
-                srv.Dispose();
             }
         }
 
@@ -151,40 +238,22 @@ namespace CargoEngine
             Width = newWidth;
             Height = newHeight;
             Viewport = new Viewport(0, 0, Width, Height);
-            foreach (var srv in ShaderResourceViews) {
-                if (srv != null) {
-                    srv.Dispose();
-                }
+            foreach (var rt in RenderTargets) {
+                rt.Resize(newWidth, newHeight);
             }
-            ShaderResourceViews.Clear();
-            var newRenderTargets = new List<RenderTargetView>();
-            foreach (var rtv in RenderTargets) {
-                Format format = rtv.Description.Format;
-                rtv.Dispose();
-                using (var t = CreateRenderTargetTexture(format)) {
-                    var rt = new RenderTargetView(Renderer.Instance.Device, t);
-                    newRenderTargets.Add(rt);
-                    var srv = new ShaderResourceView(Renderer.Instance.Device, t);
-                    ShaderResourceViews.Add(srv);
-                }
-            }
-            RenderTargets.Clear();
-            RenderTargets.AddRange(newRenderTargets);
-
             if (DepthStencilView != null) {
                 DepthStencilView.Dispose();
                 AddDepthStencil();
             }
         }
 
-        public void UpdateSlot(int slot, ShaderResourceView srv, RenderTargetView rt) {
-            var oldSRV = ShaderResourceViews[slot];
-            ShaderResourceViews.RemoveAt(slot);
-            ShaderResourceViews.Insert(slot, srv);
+        public void UpdateSlot(int slot, ShaderResourceView srv, RenderTargetView rtv) {
+            var rt = RenderTargets[slot];
+            rt.Update(srv, rtv);
+        }
 
-            var oldRT = RenderTargets[slot];
-            RenderTargets.RemoveAt(slot);
-            RenderTargets.Insert(slot, rt);
+        public RenderTargetView[] GetRenderTargetViews() {
+            return RenderTargets.Select(rt => rt.View).ToArray();
         }
     }
 }

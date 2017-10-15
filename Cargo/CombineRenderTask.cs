@@ -16,10 +16,10 @@ namespace Cargo
         private CargoEngine.Shader.VertexShader vsCombine;
         private CargoEngine.Shader.PixelShader psCombine;
 
-        private ShaderResourceView albedo, light;
+        private RenderTarget albedo, light;
         private SamplerState sampler;
 
-        public CombineRenderTask(SwapChain swapChain, ShaderResourceView albedo, ShaderResourceView light) {
+        public CombineRenderTask(SwapChain swapChain, RenderTarget albedo, RenderTarget light) {
             this.swapChain = swapChain;
             this.albedo = albedo;
             this.light = light;
@@ -34,13 +34,13 @@ namespace Cargo
 
         public override void Render(RenderPipeline pipeline) {
             pipeline.OutputMerger.ClearDesiredState();
-            pipeline.OutputMerger.RenderTarget.SetState(0, swapChain.RenderTarget.RenderTargets[0]);
+            pipeline.OutputMerger.RenderTarget.SetState(0, swapChain.RenderTarget.RenderTargets[0].View);
             pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.NoDepthStencilState;
             pipeline.VertexShader.Shader = vsCombine;
             pipeline.PixelShader.Shader = psCombine;
             pipeline.PixelShader.Sampler.SetState(0, sampler);
-            pipeline.ParameterManager.SetParameter("AlbedoTexture", albedo);
-            pipeline.ParameterManager.SetParameter("LightTexture", light);
+            pipeline.ParameterManager.SetParameter("AlbedoTexture", albedo.SRV);
+            pipeline.ParameterManager.SetParameter("LightTexture", light.SRV);
             pipeline.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
 
             pipeline.ApplyOutputResources();

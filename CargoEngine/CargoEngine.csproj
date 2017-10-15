@@ -104,7 +104,6 @@
     <Compile Include="RenderPipeline.cs" />
     <Compile Include="Parameter\ShaderResourceParameter.cs" />
     <Compile Include="Parameter\Vector3Parameter.cs" />
-    <Compile Include="RenderTarget.cs" />
     <Compile Include="RenderTask.cs" />
     <Compile Include="Scene\EntityComponent.cs" />
     <Compile Include="Scene\EventListenerComponent.cs" />

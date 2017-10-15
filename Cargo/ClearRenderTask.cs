@@ -25,7 +25,7 @@ namespace Cargo
         }
 
         public override void Render(RenderPipeline pipeline) {
-            pipeline.OutputMerger.RenderTarget.SetStates(0, renderTargets.RenderTargets.ToArray());
+            pipeline.OutputMerger.RenderTarget.SetStates(0, renderTargets.GetRenderTargetViews());
             pipeline.OutputMerger.DepthStencil = renderTargets.DepthStencilView;
             pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.NoDepthStencilState;
             pipeline.VertexShader.Shader = vsClear;

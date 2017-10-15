@@ -40,8 +40,8 @@ namespace Cargo
             rasterizerState = new RasterizerState(Renderer.Instance.Device, rasterizerStateDescription);
 
             clearRenderTask = new ClearRenderTask(renderTargets);
-            lightRenderTask = new LightRenderTask(renderTargets.RenderTargets[3], renderTargets.ShaderResourceViews[1], renderTargets.ShaderResourceViews[2]);
-            combineRenderTask = new CombineRenderTask(swapChain, renderTargets.ShaderResourceViews[0], renderTargets.ShaderResourceViews[3]);
+            lightRenderTask = new LightRenderTask(renderTargets.RenderTargets[3], renderTargets.RenderTargets[1], renderTargets.RenderTargets[2]);
+            combineRenderTask = new CombineRenderTask(swapChain, renderTargets.RenderTargets[0], renderTargets.RenderTargets[3]);
         }
 
 
@@ -57,7 +57,7 @@ namespace Cargo
         }
 
         private void RenderScene(RenderPipeline pipeline) {
-            pipeline.OutputMerger.RenderTarget.SetStates(0, renderTargets.RenderTargets.ToArray());
+            pipeline.OutputMerger.RenderTarget.SetStates(0, renderTargets.GetRenderTargetViews());
             pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.DefaultDepthStencilState;
             pipeline.VertexShader.Shader = vsRender;
             pipeline.PixelShader.Shader = psRender;

@@ -28,7 +28,6 @@ namespace Cargo
             InitializeComponent();
             renderer = new Renderer();
             swapChain = new CargoEngine.SwapChain(this, renderer);
-            swapChain.RenderTarget.AddDepthStencil();
 
             scene = new Scene();
 
