@@ -19,8 +19,8 @@ VS_Output VSMain(uint id : SV_VertexID)
 float4 PSMain(VS_Output input) : SV_Target
 {
 	float3 albedo = AlbedoTexture.Sample(Sampler, input.TextureUV).rgb;
-	float3 light = LightTexture.Sample(Sampler, input.TextureUV).rgb;
+	float4 light = LightTexture.Sample(Sampler, input.TextureUV);
 
-	return float4(albedo,1);
+	return float4(albedo*light.rgb, 1);
 }
 

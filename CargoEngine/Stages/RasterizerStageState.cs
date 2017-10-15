@@ -31,5 +31,11 @@ namespace CargoEngine.Stages {
             Viewport.ResetTracking();
             RasterizerState.ResetTracking();
         }
+
+        public void SetSisterState(IStageState sister) {
+            var sis = (RasterizerStageState)sister;
+            Viewport.Sister = sis.Viewport;
+            RasterizerState.Sister = sis.RasterizerState;
+        }
     }
 }

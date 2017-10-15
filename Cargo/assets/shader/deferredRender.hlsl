@@ -39,7 +39,7 @@ PS_Output PSMain(VS_Output input)
 {
 	PS_Output output;
 
-	float3 diffuse = input.Normal;
+	float3 diffuse = float3(1,1,1);
 
 	output.Diffuse = float4(diffuse.rgb, 1);
 	output.Normal = float4(input.Normal/2.0f+0.5f, 1);

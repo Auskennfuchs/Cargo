@@ -8,7 +8,8 @@ struct PS_Output
 {
 	float4 Diffuse : SV_Target0;
 	float4 Normal : SV_Target1;
-//	float4 Position : SV_Target2;
+	float4 Position : SV_Target2;
+	float4 Light : SV_Target3;
 };
 
 VS_Output VSMain(uint id : SV_VertexID)
@@ -23,9 +24,10 @@ PS_Output PSMain(VS_Output input)
 {
 	PS_Output output;
 
-	output.Diffuse = float4(0.2, 0.2, 0.2, 1);
+	output.Diffuse = float4(0, 0, 0, 1);
 	output.Normal = float4(0, 0, 0, 0);
-//	output.Position = float4(0, 0, 0, 1);
+	output.Position = float4(0, 0, 0, 1);
+	output.Light = float4(0, 0, 0, 0.2f);
 
 	return output;
 }

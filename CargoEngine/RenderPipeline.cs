@@ -1,11 +1,12 @@
 ﻿using System;
 using CargoEngine.Parameter;
-using CargoEngine.Stages;
 using SharpDX;
 using SharpDX.Direct3D11;
 
-namespace CargoEngine {
-    public class RenderPipeline : IDisposable{
+namespace CargoEngine
+{
+    public class RenderPipeline : IDisposable
+    {
 
         public DeviceContext DevContext {
             get; private set;
@@ -59,7 +60,7 @@ namespace CargoEngine {
         }
 
         public void Dispose() {
-            if(DevContext!=null) {
+            if (DevContext != null) {
                 DevContext.Dispose();
                 DevContext = null;
             }
@@ -71,7 +72,7 @@ namespace CargoEngine {
         }
 
         public void ExecuteCommandList(CommandList cmdList) {
-            if(cmdList!=null && !cmdList.IsDisposed) {
+            if (cmdList != null && !cmdList.IsDisposed) {
                 DevContext.ExecuteCommandList(cmdList, false);
             }
             ClearStates();
@@ -106,7 +107,7 @@ namespace CargoEngine {
 
         public void ClearTargets(Color4 col, float depth, byte stencil) {
             var rtCount = OutputMerger.CurrentState.GetRenderTargetCount();
-            for(int i=0;i<rtCount;i++) {
+            for (int i = 0; i < rtCount; i++) {
                 DevContext.ClearRenderTargetView(OutputMerger.CurrentState.RenderTarget.States[i], col);
             }
             if (OutputMerger.CurrentState.DepthStencilView.State != null) {
@@ -123,7 +124,15 @@ namespace CargoEngine {
         }
 
         public void ApplyShaderResources() {
+            var vs = (CargoEngine.Shader.VertexShader)VertexShader.Shader;
+            if (vs!=null && InputAssembler.DesiredState.InputElements.NeedUpdate) {
+                var il = vs.GetInputLayout(InputAssembler.InputElements);
+                DevContext.InputAssembler.InputLayout = il;
+                InputAssembler.CurrentState.InputElements.State = InputAssembler.DesiredState.InputElements.State;
+                InputAssembler.DesiredState.InputElements.ResetTracking();
+            }
             VertexShader.ApplyDesiredState(DevContext, ParameterManager);
+
             PixelShader.ApplyDesiredState(DevContext, ParameterManager);
 
             Rasterizer.ApplyDesiredState(DevContext, ParameterManager);

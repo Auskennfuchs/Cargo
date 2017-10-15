@@ -6,14 +6,14 @@ using SharpDX.DXGI;
 namespace CargoEngine.Stages {
     public class InputAssemblerStage : Stage<InputAssemblerStageState> {
 
-        public InputLayout InputLayout {
+/*        public InputLayout InputLayout {
             get {
                 return DesiredState.InputLayout.State;
             }
             set {
                 DesiredState.InputLayout.State = value;
             }
-        }
+        }*/
 
         public PrimitiveTopology PrimitiveTopology {
             get {
@@ -48,10 +48,19 @@ namespace CargoEngine.Stages {
             }
         }
 
-        public override void OnApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {
-            if (DesiredState.InputLayout.NeedUpdate) {
-                dc.InputAssembler.InputLayout = DesiredState.InputLayout.State;
+        internal InputElementList InputElements {
+            get {
+                return DesiredState.InputElements.State;
             }
+            set {
+                DesiredState.InputElements.State = value;
+            }
+        }
+
+        public override void OnApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {
+/*            if (DesiredState.InputLayout.NeedUpdate) {
+                dc.InputAssembler.InputLayout = DesiredState.InputLayout.State;
+            }*/
             if (DesiredState.PrimitiveTopology.NeedUpdate) {
                 dc.InputAssembler.PrimitiveTopology = DesiredState.PrimitiveTopology.State;
             }

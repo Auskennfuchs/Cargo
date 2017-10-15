@@ -11,11 +11,11 @@ namespace CargoEngine
 
         public List<RenderTargetView> RenderTargets {
             get; private set;
-        }
+        } = new List<RenderTargetView>();
 
         public List<ShaderResourceView> ShaderResourceViews {
             get; private set;
-        }
+        } = new List<ShaderResourceView>();
 
         public DepthStencilView DepthStencilView {
             get; private set;
@@ -38,8 +38,6 @@ namespace CargoEngine
         }
 
         public RenderTargetGroup(int width, int height, Format firstFormat) {
-            RenderTargets = new List<RenderTargetView>();
-            ShaderResourceViews = new List<ShaderResourceView>();
             Width = width;
             Height = height;
             AddRenderTarget(firstFormat);
@@ -53,6 +51,17 @@ namespace CargoEngine
             };
         }
 
+        public RenderTargetGroup(SwapChain swapChain, Texture2D tex) {
+            Width = tex.Description.Width;
+            Height = tex.Description.Height;
+            Viewport = new Viewport(0, 0, Width, Height);
+            AddRenderTarget(tex);
+
+            swapChain.Resize += (o, e) => {
+                Resize(e.Size.Width, e.Size.Height);
+            };
+        }
+
         public void AddRenderTarget(Format format) {
             using (var t = CreateRenderTargetTexture(format)) {
                 var rtv = new RenderTargetView(Renderer.Instance.Device, t);
@@ -60,6 +69,13 @@ namespace CargoEngine
                 var srv = new ShaderResourceView(Renderer.Instance.Device, t);
                 ShaderResourceViews.Add(srv);
             }
+        }
+
+        public void AddRenderTarget(Texture2D tex) {
+            var rtv = new RenderTargetView(Renderer.Instance.Device, tex);
+            RenderTargets.Add(rtv);
+//            var srv = new ShaderResourceView(Renderer.Instance.Device, tex);
+            ShaderResourceViews.Add(null);
         }
 
         private Texture2D CreateRenderTargetTexture(Format format) {
@@ -131,12 +147,14 @@ namespace CargoEngine
             }
         }
 
-        private void Resize(int newWidth, int newHeight) {
+        public void Resize(int newWidth, int newHeight) {
             Width = newWidth;
             Height = newHeight;
             Viewport = new Viewport(0, 0, Width, Height);
             foreach (var srv in ShaderResourceViews) {
-                srv.Dispose();
+                if (srv != null) {
+                    srv.Dispose();
+                }
             }
             ShaderResourceViews.Clear();
             var newRenderTargets = new List<RenderTargetView>();
@@ -157,6 +175,16 @@ namespace CargoEngine
                 DepthStencilView.Dispose();
                 AddDepthStencil();
             }
+        }
+
+        public void UpdateSlot(int slot, ShaderResourceView srv, RenderTargetView rt) {
+            var oldSRV = ShaderResourceViews[slot];
+            ShaderResourceViews.RemoveAt(slot);
+            ShaderResourceViews.Insert(slot, srv);
+
+            var oldRT = RenderTargets[slot];
+            RenderTargets.RemoveAt(slot);
+            RenderTargets.Insert(slot, rt);
         }
     }
 }

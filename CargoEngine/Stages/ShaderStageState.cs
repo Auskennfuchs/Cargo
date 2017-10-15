@@ -65,5 +65,13 @@ namespace CargoEngine.Stages {
                 Samplers.States[i] = ((ShaderStageState<ShaderClass>)src).Samplers.States[i];
             }
         }
+
+        public void SetSisterState(IStageState sister) {
+            var sis = (ShaderStageState<ShaderClass>)sister;
+            Shader.Sister = sis.Shader;
+            ConstantBuffer.Sister = sis.ConstantBuffer;
+            Resources.Sister = sis.Resources;
+            Samplers.Sister = sis.Samplers;
+        }
     }
 }

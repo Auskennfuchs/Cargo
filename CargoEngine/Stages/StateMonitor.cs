@@ -44,7 +44,7 @@ namespace CargoEngine.Stages {
         }
 
         public void InitializeState() {
-            state = initialState;
+            State = initialState;
         }
     }
 

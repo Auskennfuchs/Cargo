@@ -92,5 +92,16 @@ namespace CargoEngine {
                 pipeline.ParameterManager.SetParameter(name, mat);
             }
         }
+
+        public SamplerState CreateSamplerState(TextureAddressMode texMode, Filter filter, int aniso) {
+            var samplerStateDescription = new SamplerStateDescription {
+                AddressU = texMode,
+                AddressV = texMode,
+                AddressW = texMode,
+                Filter = filter,
+                MaximumAnisotropy = 16,
+            };
+            return new SamplerState(Renderer.Instance.Device, samplerStateDescription);
+        }
     }
 }

@@ -4,7 +4,6 @@ using CargoEngine;
 using CargoEngine.Event;
 using CargoEngine.Scene;
 using SharpDX;
-using SharpDX.Direct3D11;
 
 namespace Cargo
 {
