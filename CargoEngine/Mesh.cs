@@ -47,6 +47,17 @@ namespace CargoEngine
             }
         }
 
+        private Vector2[] uvs;
+        public Vector2[] UVs {
+            get {
+                return uvs;
+            }
+            set {
+                uvs = value;
+                Modified = true;
+            }
+        }
+
         public int VertexCount {
             get; private set;
         }
@@ -111,8 +122,11 @@ namespace CargoEngine
             if (Normals != null && Normals.Length > 0) {
                 AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Normals), "NORMAL", Format.R32G32B32_Float, Utilities.SizeOf<Vector3>());
             }
-            
-            if(Indices!=null && Indices.Length > 0) {
+            if (UVs != null && UVs.Length > 0) {
+                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, UVs), "TEXCOORD", Format.R32G32_Float, Utilities.SizeOf<Vector2>());
+            }
+
+            if (Indices!=null && Indices.Length > 0) {
                 NumIndices = Indices.Length;
                 if (VertexCount <= ushort.MaxValue) {
                     indexBuffer = Buffer.Create(Renderer.Instance.Device, BindFlags.IndexBuffer, Array.ConvertAll(Indices, i => (ushort)i));

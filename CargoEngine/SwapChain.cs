@@ -123,10 +123,7 @@ namespace CargoEngine
         private void DoResize(int width, int height) {
             var rt = RenderTarget.RenderTargets[0];
             rt.Clear();
-            try {
-                swapChain.ResizeBuffers(1, width, height, Format.Unknown, SwapChainFlags.AllowModeSwitch);
-            }catch(SharpDXException ex) {
-            }
+            swapChain.ResizeBuffers(1, width, height, Format.Unknown, SwapChainFlags.AllowModeSwitch);
             using (var tex = Resource.FromSwapChain<Texture2D>(swapChain, 0)) {
                 rt.Update(null, new RenderTargetView(Renderer.Instance.Device, tex));
             }

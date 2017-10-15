@@ -1,10 +1,11 @@
 ﻿namespace CargoEngine.Parameter {
     public enum RenderParameterType {
-        MATRIX,
-        VECTOR3,
-        VECTOR4,
+        Matrix,
+        Vector3,
+        Vector4,
         SRV,
-        NUM_ELEM
+        SamplerState,
+        NumElements
     }
 
     public abstract class RenderParameter {

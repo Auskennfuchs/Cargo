@@ -14,7 +14,7 @@ namespace Cargo
         private SamplerState sampler;
 
         private Vector3 lightDir = new Vector3(1.0f, -1.0f, 0.0f);
-        private Color3 lightColor = new Color3(0.8f, 0.8f, 0.8f);
+        private Color3 lightColor = new Color3(1.0f, 0.5f, 0.8f);
         private Color3 ambientColor = new Color3(0.2f, 0.2f, 0.2f);
 
         public LightRenderTask(RenderTarget lightTarget, RenderTarget normalTarget, RenderTarget positionTarget) {

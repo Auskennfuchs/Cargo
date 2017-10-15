@@ -1,6 +1,8 @@
 ﻿using CargoEngine;
 using CargoEngine.Scene;
+using CargoEngine.Texture;
 using SharpDX;
+using SharpDX.Direct3D11;
 
 namespace Cargo
 {
@@ -8,6 +10,11 @@ namespace Cargo
     {
         private const uint MAP_SIZE = 513;
         private const uint CHUNK_SIZE = 256;
+
+        private Texture2D texture;
+        private ShaderResourceView texSRV;
+        private SamplerState sampler;
+
         public Terrain() {
             var points = GenerateTerrain();
 
@@ -16,18 +23,23 @@ namespace Cargo
             var triPoints = new Vector3[mapSize, mapSize];
             for (var z = 0; z < mapSize; z++) {
                 for (var x = 0; x < mapSize; x++) {
-                    triPoints[x, z] = new Vector3(x, points[x, z] - 128.0f, MAP_SIZE - z);
+                    triPoints[x, z] = new Vector3(x, (points[x, z] - 128.0f)*0.5f, MAP_SIZE - z);
                 }
             }
 
             var normals = CalcNormals(triPoints, mapSize);
 
+            texture = TextureLoader.FromFile("assets/textures/textureGrid_1k.jpg");
+            texSRV = new ShaderResourceView(Renderer.Instance.Device, texture);
+            sampler = Renderer.Instance.CreateSamplerState(TextureAddressMode.Wrap, Filter.Anisotropic, 16);
+
             for (uint z = 0; z < MAP_SIZE / CHUNK_SIZE; z++) {
                 for (uint x = 0; x < MAP_SIZE / CHUNK_SIZE; x++) {
-                    var chunk = new TerrainChunk(triPoints, normals, CHUNK_SIZE, x * CHUNK_SIZE, z * CHUNK_SIZE);
+                    var chunk = new TerrainChunk(triPoints, normals, CHUNK_SIZE, x * CHUNK_SIZE, z * CHUNK_SIZE, texSRV, sampler);
                     this.AddChild(chunk);
                 }
             }
+
         }
 
         private float[,] GenerateTerrain() {
@@ -86,14 +98,16 @@ namespace Cargo
 
     class TerrainChunk : SceneNode
     {
-        public TerrainChunk(Vector3[,] points, Vector3[,] normals, uint chunkSize, uint offsetX, uint offsetY) {
+        public TerrainChunk(Vector3[,] points, Vector3[,] normals, uint chunkSize, uint offsetX, uint offsetY, ShaderResourceView texture, SamplerState sampler) {
             var mapSize = chunkSize + 1;
             var triPoints = new Vector3[mapSize * mapSize];
             var triNormals = new Vector3[mapSize * mapSize];
+            var triUV = new Vector2[mapSize * mapSize];
             for (var z = 0; z < mapSize; z++) {
                 for (var x = 0; x < mapSize; x++) {
                     triPoints[x + z * mapSize] = points[x + offsetX, z + offsetY];
                     triNormals[x + z * mapSize] = normals[x + offsetX, z + offsetY];
+                    triUV[x + z * mapSize] = new Vector2((float)x / mapSize, (float)z / mapSize);
                 }
             }
 
@@ -115,7 +129,10 @@ namespace Cargo
             geo.Executor.Geometry.Vertices = triPoints;
             geo.Executor.Geometry.Normals = triNormals;
             geo.Executor.Geometry.Indices = indices;
+            geo.Executor.Geometry.UVs = triUV;
             geo.Executor.Geometry.Topology = Topology.TriangleList;
+            geo.Executor.RenderParameter.SetParameter("AlbedoTexture", texture);
+            geo.Executor.RenderParameter.SetParameter("Sampler", sampler);
             this.AddComponent(geo);
         }
     }

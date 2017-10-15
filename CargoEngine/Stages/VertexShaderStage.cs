@@ -31,5 +31,9 @@ namespace CargoEngine.Stages {
         protected override void BindShaderResources(DeviceContext dc) {
             dc.VertexShader.SetShaderResources(DesiredState.Resources.StartSlot, DesiredState.Resources.Range, DesiredState.Resources.ChangedStates);
         }
+
+        protected override void BindSamplerResources(DeviceContext dc) {
+            dc.VertexShader.SetSamplers(DesiredState.Samplers.StartSlot, DesiredState.Samplers.Range, DesiredState.Samplers.ChangedStates);
+        }
     }
 }

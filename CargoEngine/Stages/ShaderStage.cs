@@ -47,13 +47,17 @@ namespace CargoEngine.Stages {
             if (DesiredState.Resources.NeedUpdate) {
                 BindShaderResources(dc);
             }
+            if (DesiredState.Samplers.NeedUpdate) {
+                BindSamplerResources(dc);
+            }
         }
 
         protected abstract void BindShader(DeviceContext dc, ParameterManager paramManager);
         protected abstract void BindConstantBuffers(DeviceContext dc, ParameterManager paramManager);
         protected abstract void BindShaderResources(DeviceContext dc);
+        protected abstract void BindSamplerResources(DeviceContext dc);
 
-        public void UpdateConstantBufferParameter(DeviceContext dc, ParameterManager paramManager) {
+            public void UpdateConstantBufferParameter(DeviceContext dc, ParameterManager paramManager) {
             for (var i = 0; i < DesiredState.ConstantBuffer.NumSlots; i++) {
                 if (DesiredState.ConstantBuffer.States[i] != null) {
                     DesiredState.ConstantBuffer.States[i].UpdateBuffer(dc, paramManager);
@@ -76,6 +80,9 @@ namespace CargoEngine.Stages {
             if(DesiredState.Shader.State!=null) {
                 foreach(var tex in DesiredState.Shader.State.Textures) {
                     DesiredState.Resources.SetState(tex.Key, paramManager.GetSRVParameter(tex.Value));
+                }
+                foreach (var sampler in DesiredState.Shader.State.Samplers) {
+                    DesiredState.Samplers.SetState(sampler.Key, paramManager.GetSamplerStateParameter(sampler.Value));
                 }
             }
         }

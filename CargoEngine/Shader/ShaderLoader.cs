@@ -12,13 +12,25 @@ using CargoEngine.Parameter;
 
 namespace CargoEngine.Shader {
     public class ShaderLoader {
+        private static Dictionary<string, VertexShader> vertexShaders = new Dictionary<string, VertexShader>();
+        private static Dictionary<string, PixelShader> pixelShaders = new Dictionary<string, PixelShader>();
 
         public static VertexShader LoadVertexShader(Renderer renderer, string file, string entryfunction) {
-            return LoadShader<VertexShader,VShader>(renderer, file, entryfunction, "vs_5_0");
+            if(vertexShaders.ContainsKey(file)) {
+                return vertexShaders[file];
+            }
+            var shader = LoadShader<VertexShader,VShader>(renderer, file, entryfunction, "vs_5_0");
+            vertexShaders.Add(file, shader);
+            return shader;
         }
 
         public static PixelShader LoadPixelShader(Renderer renderer, string file, string entryfunction) {
-            return LoadShader<PixelShader,PShader>(renderer, file, entryfunction, "ps_5_0");
+            if (pixelShaders.ContainsKey(file)) {
+                return pixelShaders[file];
+            }
+            var shader = LoadShader<PixelShader,PShader>(renderer, file, entryfunction, "ps_5_0");
+            pixelShaders.Add(file, shader);
+            return shader;
         }
 
         private static T LoadShader<T,U>(Renderer renderer, string file, string entryfunction, string profile) where T: ShaderBase<U> where U: DeviceChild {
@@ -44,23 +56,27 @@ namespace CargoEngine.Shader {
             var inputSignature = ShaderSignature.GetInputSignature(bytecode);
             var shaderPtr = Activator.CreateInstance(typeof(U),new object[] { renderer.Device, bytecode.Data, null }) as U;
             using (var reflection = new ShaderReflection(bytecode)) {
-                var textures = ReflectResources(reflection);
+                var (textures,samplers) = ReflectResources(reflection);
                 var constantBuffers = ReflectConstantBuffers(renderer, reflection);
-                return Activator.CreateInstance(typeof(T), new object[] { inputSignature, shaderPtr, constantBuffers, textures }) as T;
+                return Activator.CreateInstance(typeof(T), new object[] { inputSignature, shaderPtr, constantBuffers, textures, samplers }) as T;
             }
         }
 
-        private static Dictionary<int,string> ReflectResources(ShaderReflection reflection) {
-            Dictionary<int, string> textures = new Dictionary<int, string>();
+        private static (Dictionary<int,string>, Dictionary<int, string>) ReflectResources(ShaderReflection reflection) {
+            var textures = new Dictionary<int, string>();
+            var samplers = new Dictionary<int, string>();
             for (var resIndex = 0; resIndex < reflection.Description.BoundResources; resIndex++) {
                 var resDesc = reflection.GetResourceBindingDescription(resIndex);
                 switch (resDesc.Type) {
                     case ShaderInputType.Texture:
                         textures[resDesc.BindPoint] = resDesc.Name;
                         break;
+                    case ShaderInputType.Sampler:
+                        samplers[resDesc.BindPoint] = resDesc.Name;
+                        break;
                 }
             }
-            return textures;
+            return (textures,samplers);
         }
 
         private static List<ConstantBuffer> ReflectConstantBuffers(Renderer renderer, ShaderReflection reflection) {

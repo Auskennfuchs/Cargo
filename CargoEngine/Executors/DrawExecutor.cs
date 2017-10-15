@@ -16,6 +16,7 @@ namespace CargoEngine.Executors {
             pipeline.InputAssembler.ClearDesiredState();
 
             Geometry.Apply(pipeline);
+            pipeline.ParameterManager.ApplyCollection(RenderParameter);
             pipeline.ApplyInputResources();
             pipeline.ApplyShaderResources();
             if (Geometry.NumIndices > 0) {

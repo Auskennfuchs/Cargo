@@ -12,8 +12,8 @@ namespace CargoEngine.Shader {
 
         private Dictionary<int, InputLayout> inputLayouts = new Dictionary<int, InputLayout>();
 
-        public VertexShader(ShaderSignature inputSignature, VShader shader, List<ConstantBuffer> constantBuffers, Dictionary<int, string> textures)
-            : base(shader, inputSignature, constantBuffers, textures) { 
+        public VertexShader(ShaderSignature inputSignature, VShader shader, List<ConstantBuffer> constantBuffers, Dictionary<int, string> textures, Dictionary<int, string> samplers)
+            : base(shader, inputSignature, constantBuffers, textures, samplers) { 
         }
 
         internal InputLayout GetInputLayout(InputElementList elements) {
