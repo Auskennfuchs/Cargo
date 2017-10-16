@@ -60,36 +60,49 @@ namespace Cargo
 
         private Vector3[,] CalcNormals(Vector3[,] points, uint mapSize) {
             var normals = new Vector3[mapSize, mapSize];
-
+            var sizeFactor = 1.0f / 8.0f;
             for (var y = 0; y < mapSize; y++) {
                 for (var x = 0; x < mapSize; x++) {
                     var normal = Vector3.Up;
-                    if (x < mapSize - 1 && y < mapSize - 1) {
+                    if (x > 0 && y > 0 && x < mapSize - 1 && y < mapSize - 1) {
+                        float nw = points[x - 1, y - 1].Y;
+                        float n = points[x - 1, y].Y;
+                        float ne = points[x - 1, y + 1].Y;
+                        float e = points[x, y + 1].Y;
+                        float se = points[x + 1, y + 1].Y;
+                        float s = points[x + 1, y].Y;
+                        float sw = points[x + 1, y - 1].Y;
+                        float w = points[x, y - 1].Y;
+
+                        float dydx = ((ne + 2 * e + se) - (nw + 2 * w + sw)) * sizeFactor;
+                        float dydz = ((sw + 2 * s + se) - (nw + 2 * n + ne)) * sizeFactor;
+
+                        normal = new Vector3(-dydx, 1.0f, -dydz);
+                    }
+/*                    if (x < mapSize - 1 && y < mapSize - 1) {
                         var v1 = points[x, y] - points[x + 1, y];
                         var v2 = points[x, y] - points[x, y + 1];
-                        normal += Vector3.Cross(v1, v2);
+                        normal += Vector3.Normalize(Vector3.Cross(v1, v2));
                     }
                     if (x > 0 && y < mapSize - 1) {
                         var v1 = points[x - 1, y] - points[x, y];
                         var v2 = points[x, y] - points[x, y + 1];
-                        normal += Vector3.Cross(v1, v2);
+                        normal += Vector3.Normalize(Vector3.Cross(v1, v2));
                     }
 
                     if (x > 0 && y > 0) {
                         var v1 = points[x - 1, y] - points[x, y];
                         var v2 = points[x, y - 1] - points[x, y];
-                        normal += Vector3.Cross(v1, v2);
+                        normal += Vector3.Normalize(Vector3.Cross(v1, v2));
                     }
 
                     if (x < mapSize - 1 && y > 0) {
                         var v1 = points[x, y] - points[x + 1, y];
                         var v2 = points[x, y - 1] - points[x, y];
-                        normal += Vector3.Cross(v1, v2);
-                    }
+                        normal += Vector3.Normalize(Vector3.Cross(v1, v2));
+                    }*/
 
-                    normal.Normalize();
-
-                    normals[x, y] = normal;
+                    normals[x, y] = Vector3.Normalize(normal);
                 }
             }
             return normals;
