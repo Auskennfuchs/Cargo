@@ -37,7 +37,7 @@ namespace Cargo
 
 
             cam = new Camera();
-            cam.Transform.Position = new Vector3(0, 0, -10.0f);
+            cam.Transform.Position = new Vector3(0, 1.0f, -1.0f);
             cam.SetProjection(0.1f, 1000.0f, (float)this.Width / (float)this.Height, (float)Math.PI / 4.0f);
             cam.RenderTask = new DeferredRenderTask(swapChain);
             cam.Scene = scene;

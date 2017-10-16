@@ -77,15 +77,15 @@ namespace CargoEngine {
                     count++;
                     var task = taskQueue.Dequeue();
                     task.Render(deferredPipelines[0]);
+                    deferredPipelines[0].FinishCommandList();
+                    ImmPipeline.ExecuteCommandList(deferredPipelines[0].CommandList);
+                    deferredPipelines[0].ReleaseCommandList();
                 }
-                deferredPipelines[0].FinishCommandList();
-                ImmPipeline.ExecuteCommandList(deferredPipelines[0].CommandList);
-                deferredPipelines[0].ReleaseCommandList();
-/*                for (var k = 0; k < j; k++) {
-                    deferredPipelines[k].FinishCommandList();
-                    ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
-                    deferredPipelines[k].ReleaseCommandList();
-                }*/
+                /*                for (var k = 0; k < j; k++) {
+                                    deferredPipelines[k].FinishCommandList();
+                                    ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
+                                    deferredPipelines[k].ReleaseCommandList();
+                                }*/
             }
 
             taskQueue.Clear();

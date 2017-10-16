@@ -37,6 +37,7 @@ namespace Cargo
 
             var rasterizerStateDescription = RasterizerStateDescription.Default();
             rasterizerStateDescription.CullMode = CullMode.Back;
+            rasterizerStateDescription.FillMode = FillMode.Solid;
             rasterizerState = new RasterizerState(Renderer.Instance.Device, rasterizerStateDescription);
 
             clearRenderTask = new ClearRenderTask(renderTargets);
@@ -58,9 +59,10 @@ namespace Cargo
 
         private void RenderScene(RenderPipeline pipeline) {
             pipeline.OutputMerger.RenderTarget.SetStates(0, renderTargets.GetRenderTargetViews());
-            pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.DefaultDepthStencilState;
+            pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.DefaultDepthStencilState;            
             pipeline.VertexShader.Shader = vsRender;
             pipeline.PixelShader.Shader = psRender;
+//            pipeline.Rasterizer.RasterizerState = rasterizerState;
             pipeline.ApplyOutputResources();
             pipeline.ParameterManager.SetViewMatrix(ViewMatrix);
             pipeline.ParameterManager.SetProjectionMatrix(ProjectionMatrix);
