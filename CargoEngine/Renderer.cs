@@ -14,6 +14,10 @@ namespace CargoEngine {
             get; private set;
         }
 
+        public static Device Dev {
+            get { return Instance.Device; }
+        }
+
         public Device Device {
             get; private set;
         }

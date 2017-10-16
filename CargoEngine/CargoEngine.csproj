@@ -52,6 +52,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <LangVersion>7.1</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
@@ -138,6 +139,8 @@
     <Compile Include="Stages\StateMonitor.cs" />
     <Compile Include="Stages\VertexShaderStage.cs" />
     <Compile Include="SwapChain.cs" />
+    <Compile Include="Texture\Texture.cs" />
+    <Compile Include="Texture\Texture2D.cs" />
     <Compile Include="Texture\TextureLoader.cs" />
     <Compile Include="Timer.cs" />
     <Compile Include="Transform.cs" />

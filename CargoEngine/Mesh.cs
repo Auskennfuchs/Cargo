@@ -47,6 +47,27 @@ namespace CargoEngine
             }
         }
 
+        private Vector3[] binormals;
+        public Vector3[] BiNormals {
+            get {
+                return binormals;
+            }
+            set {
+                binormals = value;
+                Modified = true;
+            }
+        }
+        private Vector3[] tangents;
+        public Vector3[] Tangents {
+            get {
+                return tangents;
+            }
+            set {
+                tangents = value;
+                Modified = true;
+            }
+        }
+
         private Vector2[] uvs;
         public Vector2[] UVs {
             get {
@@ -117,13 +138,19 @@ namespace CargoEngine
             Modified = false;
 
             if (Vertices != null && Vertices.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Vertices),"POSITION",Format.R32G32B32_Float,Utilities.SizeOf<Vector3>());
+                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Vertices),"POSITION",Format.R32G32B32_Float);
             }
             if (Normals != null && Normals.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Normals), "NORMAL", Format.R32G32B32_Float, Utilities.SizeOf<Vector3>());
+                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Normals), "NORMAL", Format.R32G32B32_Float);
             }
             if (UVs != null && UVs.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, UVs), "TEXCOORD", Format.R32G32_Float, Utilities.SizeOf<Vector2>());
+                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, UVs), "TEXCOORD", Format.R32G32_Float);
+            }
+            if (BiNormals != null && BiNormals.Length > 0) {
+                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, BiNormals), "BINORMAL", Format.R32G32B32_Float);
+            }
+            if (Tangents != null && Tangents.Length > 0) {
+                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Tangents), "TANGENT", Format.R32G32B32_Float);
             }
 
             if (Indices!=null && Indices.Length > 0) {
@@ -148,7 +175,10 @@ namespace CargoEngine
             InputElements.Clear();
         }
 
-        private void AddBuffer(Buffer buf, string inputName, Format format, int stride) {
+        private void AddBuffer(Buffer buf, string inputName, Format format, int stride=0) {
+            if(stride==0) {
+                stride = format.SizeOfInBytes();
+            }
             var elementCount = buf.Description.SizeInBytes / stride;
             if (buffers.Count == 0) {
                 VertexCount = elementCount;

@@ -11,9 +11,10 @@ namespace Cargo
         private const uint MAP_SIZE = 513;
         private const uint CHUNK_SIZE = 256;
 
-        private Texture2D texture;
-        private ShaderResourceView texSRV;
+        private CargoEngine.Texture.Texture2D texture;        
         private SamplerState sampler;
+
+        private CargoEngine.Texture.Texture2D test;
 
         public Terrain() {
             var points = GenerateTerrain();
@@ -23,19 +24,18 @@ namespace Cargo
             var triPoints = new Vector3[mapSize, mapSize];
             for (var z = 0; z < mapSize; z++) {
                 for (var x = 0; x < mapSize; x++) {
-                    triPoints[x, z] = new Vector3(x, (points[x, z] - 128.0f)*0.5f, MAP_SIZE - z);
+                    triPoints[x, z] = new Vector3(x, (points[x, z] - 128.0f) * 0.5f, MAP_SIZE - z);
                 }
             }
 
             var normals = CalcNormals(triPoints, mapSize);
 
             texture = TextureLoader.FromFile("assets/textures/textureGrid_1k.jpg");
-            texSRV = new ShaderResourceView(Renderer.Instance.Device, texture);
             sampler = Renderer.Instance.CreateSamplerState(TextureAddressMode.Wrap, Filter.Anisotropic, 16);
 
             for (uint z = 0; z < MAP_SIZE / CHUNK_SIZE; z++) {
                 for (uint x = 0; x < MAP_SIZE / CHUNK_SIZE; x++) {
-                    var chunk = new TerrainChunk(triPoints, normals, CHUNK_SIZE, x * CHUNK_SIZE, z * CHUNK_SIZE, texSRV, sampler);
+                    var chunk = new TerrainChunk(triPoints, normals, CHUNK_SIZE, x * CHUNK_SIZE, z * CHUNK_SIZE, texture.SRV, sampler);
                     this.AddChild(chunk);
                 }
             }

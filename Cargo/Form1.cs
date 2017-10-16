@@ -43,7 +43,7 @@ namespace Cargo
             cam.Scene = scene;
             cam.AddComponent(new FreeLookComponent(eventManager));
             cam.AddComponent(new FreeMoveComponent(eventManager) {
-                Speed = 10.0f
+                Speed = 40.0f
             });
             scene.RootNode.AddChild(cam);
 
