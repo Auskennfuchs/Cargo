@@ -33,7 +33,6 @@ namespace Cargo
             pipeline.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
             pipeline.Rasterizer.Viewport = renderTargets.Viewport;
             pipeline.ApplyOutputResources();
-            pipeline.ApplyInputResources();
             pipeline.ApplyShaderResources();
 
             pipeline.ClearTargets(new SharpDX.Color4(0.2f, 0.2f, 0.2f, 1.0f), 1.0f, 0);

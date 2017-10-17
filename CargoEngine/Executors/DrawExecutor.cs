@@ -17,7 +17,6 @@ namespace CargoEngine.Executors {
 
             Geometry.Apply(pipeline);
             pipeline.ParameterManager.ApplyCollection(RenderParameter);
-            pipeline.ApplyInputResources();
             pipeline.ApplyShaderResources();
             if (Geometry.NumIndices > 0) {
                 pipeline.DrawIndexed(Geometry.NumIndices, 0, 0);

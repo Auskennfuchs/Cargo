@@ -25,16 +25,24 @@ namespace CargoEngine.Texture
         }
 
         public Texture2D(int width, int height, Format format, bool mipMaps = true) : base(Dimension.Texture2D, width, height, format) {
-            MipMapCount = 0;// mipMaps ? GetNumMipLevels(width, height) : 0;
+            MipMapCount = mipMaps ? GetNumMipLevels(width, height) : 1;
+            var bindFlags = BindFlags.ShaderResource;
+            if (MipMapCount > 1) {
+                bindFlags |= BindFlags.RenderTarget;
+            }
+            var resourceOptionFlags = ResourceOptionFlags.None;
+            if (mipMaps) {
+                resourceOptionFlags |= ResourceOptionFlags.GenerateMipMaps;
+            }
             dxTexture = new SharpDX.Direct3D11.Texture2D(Renderer.Dev, new Texture2DDescription {
                 Width = width,
                 Height = height,
                 Format = format,
                 ArraySize = 1,
-                BindFlags = BindFlags.ShaderResource,
+                BindFlags = bindFlags,
                 CpuAccessFlags = CpuAccessFlags.None,
                 MipLevels = MipMapCount,
-                OptionFlags = ResourceOptionFlags.None,
+                OptionFlags = resourceOptionFlags,
                 SampleDescription = new SampleDescription(1, 0),
                 Usage = ResourceUsage.Default,
             });
@@ -72,7 +80,7 @@ namespace CargoEngine.Texture
                     Renderer.Dev.ImmediateContext.UpdateSubresource(new DataBox(iPtr,Width*Format.SizeOfInBytes(),Height*Width*Format.SizeOfInBytes()), dxTexture);
                 }
             }
-            if (MipMapCount > 0 && SRV != null) {
+            if (MipMapCount > 1 && SRV != null) {
                 Renderer.Dev.ImmediateContext.GenerateMips(SRV);
             }
         }

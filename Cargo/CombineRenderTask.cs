@@ -39,7 +39,6 @@ namespace Cargo
             pipeline.Rasterizer.Viewport = swapChain.Viewport;
 
             pipeline.ApplyOutputResources();
-            pipeline.ApplyInputResources();
             pipeline.ApplyShaderResources();
             pipeline.Draw(3, 0);
         }
