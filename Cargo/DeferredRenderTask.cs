@@ -41,6 +41,7 @@ namespace Cargo
 
             var rasterizerStateDescription = RasterizerStateDescription.Default();
             rasterizerStateDescription.CullMode = CullMode.Back;
+            rasterizerStateDescription.FillMode = FillMode.Solid;
             rasterizerState = new RasterizerState(Renderer.Instance.Device, rasterizerStateDescription);
 
             clearRenderTask = new ClearRenderTask(renderTargets);
@@ -67,6 +68,7 @@ namespace Cargo
             pipeline.VertexShader.Shader = vsRender;
             pipeline.PixelShader.Shader = psRender;
             pipeline.Rasterizer.Viewport = renderTargets.Viewport;
+            pipeline.Rasterizer.RasterizerState = rasterizerState;
             pipeline.ParameterManager.SetViewMatrix(ViewMatrix);
             pipeline.ParameterManager.SetProjectionMatrix(ProjectionMatrix);
             pipeline.ParameterManager.SetParameter("viewPosition", ViewMatrix.TranslationVector);
