@@ -42,6 +42,7 @@ namespace CargoEngine {
                 CalcMatrices();
                 if (Parent != null && (Changed || Parent.Changed)) {
                     worldMatrix = LocalMatrix * Parent.WorldMatrix;
+                    Changed = false;
                 }
                 return worldMatrix;
             }

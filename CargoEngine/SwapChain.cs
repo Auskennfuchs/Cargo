@@ -6,18 +6,19 @@ using SharpDX.DXGI;
 using DXSwapChain = SharpDX.DXGI.SwapChain;
 using Resource = SharpDX.Direct3D11.Resource;
 
-namespace CargoEngine {
-    public class SwapChain : Event.EventManager, IDisposable {
+namespace CargoEngine
+{
+    public class SwapChain : Event.EventManager, IDisposable
+    {
         private DXSwapChain swapChain;
 
-        private RenderTarget renderTarget;
-        public RenderTarget RenderTarget {
-            get { return renderTarget; }
+        public RenderTargetGroup RenderTarget {
+            get; private set;
         }
 
         public Viewport Viewport {
-            get { return renderTarget.Viewport; }
-            set { renderTarget.Viewport = value; }
+            get { return RenderTarget.Viewport; }
+            set { RenderTarget.Viewport = value; }
         }
 
         public DXSwapChain DXSwapChain {
@@ -51,7 +52,7 @@ namespace CargoEngine {
                 IsWindowed = true,
                 ModeDescription = new ModeDescription(form.ClientSize.Width, form.ClientSize.Height, new Rational(0, 1), Format.R8G8B8A8_UNorm),
                 OutputHandle = form.Handle,
-                SampleDescription = new SampleDescription(2, 0),
+                SampleDescription = new SampleDescription(1, 0),
                 SwapEffect = SwapEffect.Discard
             };
 
@@ -59,7 +60,7 @@ namespace CargoEngine {
                 swapChain = new DXSwapChain(factory, renderer.Device, swapChainDescriptor);
             }
             using (var resource = Resource.FromSwapChain<Texture2D>(swapChain, 0)) {
-                renderTarget = new RenderTarget(renderer, resource);
+                RenderTarget = new RenderTargetGroup(resource);
             }
 
             using (var fac = swapChain.GetParent<Factory>()) {
@@ -83,8 +84,8 @@ namespace CargoEngine {
         }
 
         public void Dispose() {
-            if (renderTarget != null) {
-                renderTarget.Dispose();
+            if (RenderTarget != null) {
+                RenderTarget.Dispose();
             }
             if (swapChain != null) {
                 swapChain.Dispose();
@@ -111,7 +112,8 @@ namespace CargoEngine {
             if (e.Alt && e.KeyCode == Keys.Enter) {
                 if (!swapChain.IsFullScreen) {
                     DoResize(fullScreenWidth, fullScreenHeight);
-                } else {
+                }
+                else {
                     DoResize(formWidth, formHeight);
                 }
                 swapChain.IsFullScreen = !swapChain.IsFullScreen;
@@ -119,14 +121,15 @@ namespace CargoEngine {
         }
 
         private void DoResize(int width, int height) {
-            renderTarget.Dispose();
-            swapChain.ResizeBuffers(1, width, height, Format.R8G8B8A8_UNorm, SwapChainFlags.AllowModeSwitch);
-            using (var resource = Resource.FromSwapChain<Texture2D>(swapChain, 0)) {
-                renderTarget.Resize(width, height, resource);
+            var rt = RenderTarget.RenderTargets[0];
+            rt.Clear();
+            swapChain.ResizeBuffers(1, width, height, Format.Unknown, SwapChainFlags.AllowModeSwitch);
+            using (var tex = Resource.FromSwapChain<Texture2D>(swapChain, 0)) {
+                rt.Update(null, new RenderTargetView(Renderer.Instance.Device, tex));
             }
-
+            Viewport = new Viewport(0, 0, width, height);
             Resize?.Invoke(this, new Event.SResizeEvent {
-                    Size = new System.Drawing.Size(width, height)
+                Size = new System.Drawing.Size(width, height)
             });
             ProcessEvent(new Event.EventResize(new Event.SResizeEvent {
                 Size = new System.Drawing.Size(width, height)

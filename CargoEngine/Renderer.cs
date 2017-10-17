@@ -14,6 +14,10 @@ namespace CargoEngine {
             get; private set;
         }
 
+        public static Device Dev {
+            get { return Instance.Device; }
+        }
+
         public Device Device {
             get; private set;
         }
@@ -73,15 +77,15 @@ namespace CargoEngine {
                     count++;
                     var task = taskQueue.Dequeue();
                     task.Render(deferredPipelines[0]);
+                    deferredPipelines[0].FinishCommandList();
+                    ImmPipeline.ExecuteCommandList(deferredPipelines[0].CommandList);
+                    deferredPipelines[0].ReleaseCommandList();
                 }
-                deferredPipelines[0].FinishCommandList();
-                ImmPipeline.ExecuteCommandList(deferredPipelines[0].CommandList);
-                deferredPipelines[0].ReleaseCommandList();
-/*                for (var k = 0; k < j; k++) {
-                    deferredPipelines[k].FinishCommandList();
-                    ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
-                    deferredPipelines[k].ReleaseCommandList();
-                }*/
+                /*                for (var k = 0; k < j; k++) {
+                                    deferredPipelines[k].FinishCommandList();
+                                    ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
+                                    deferredPipelines[k].ReleaseCommandList();
+                                }*/
             }
 
             taskQueue.Clear();
@@ -91,6 +95,17 @@ namespace CargoEngine {
             foreach(var pipeline in deferredPipelines) {
                 pipeline.ParameterManager.SetParameter(name, mat);
             }
+        }
+
+        public SamplerState CreateSamplerState(TextureAddressMode texMode, Filter filter, int aniso) {
+            var samplerStateDescription = new SamplerStateDescription {
+                AddressU = texMode,
+                AddressV = texMode,
+                AddressW = texMode,
+                Filter = filter,
+                MaximumAnisotropy = 16,
+            };
+            return new SamplerState(Renderer.Instance.Device, samplerStateDescription);
         }
     }
 }

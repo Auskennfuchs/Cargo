@@ -4,10 +4,11 @@ using CargoEngine;
 using CargoEngine.Event;
 using CargoEngine.Scene;
 using SharpDX;
-using SharpDX.Direct3D11;
 
-namespace Cargo {
-    public partial class Form1 : Form {
+namespace Cargo
+{
+    public partial class Form1 : Form
+    {
 
         private Renderer renderer;
         private CargoEngine.SwapChain swapChain;
@@ -15,8 +16,6 @@ namespace Cargo {
         private Scene scene;
 
         private Camera cam;
-
-        private RasterizerState rasterizerState;
 
         private CargoEngine.Timer timer = new CargoEngine.Timer();
 
@@ -29,37 +28,24 @@ namespace Cargo {
             InitializeComponent();
             renderer = new Renderer();
             swapChain = new CargoEngine.SwapChain(this, renderer);
-            swapChain.RenderTarget.AddDepthStencil();
 
             scene = new Scene();
 
             var terrain = new Terrain();
             scene.RootNode.AddChild(terrain);
-            terrain = new Terrain();
-            terrain.Transform.Position = new Vector3(0, 0, -255.0f);
-            scene.RootNode.AddChild(terrain);
-            terrain = new Terrain();
-            terrain.Transform.Position = new Vector3(-255.0f, 0, 0f);
-            scene.RootNode.AddChild(terrain);
-            terrain = new Terrain();
-            terrain.Transform.Position = new Vector3(-255.0f, 0, -255.0f);
-            scene.RootNode.AddChild(terrain);
+//            terrain.Transform.Scale = new Vector3(3.0f, 1.0f, 3.0f);
 
 
             cam = new Camera();
             cam.Transform.Position = new Vector3(0, 0, -10.0f);
             cam.SetProjection(0.1f, 1000.0f, (float)this.Width / (float)this.Height, (float)Math.PI / 4.0f);
-            cam.RenderTask = new SimpleRenderTask(swapChain.RenderTarget);
+            cam.RenderTask = new DeferredRenderTask(swapChain);
             cam.Scene = scene;
             cam.AddComponent(new FreeLookComponent(eventManager));
             cam.AddComponent(new FreeMoveComponent(eventManager) {
-                Speed=10.0f
+                Speed = 40.0f
             });
             scene.RootNode.AddChild(cam);
-
-            var rasterizerStateDescription = RasterizerStateDescription.Default();
-            rasterizerStateDescription.CullMode = CullMode.None;
-            rasterizerState = new RasterizerState(Renderer.Instance.Device, rasterizerStateDescription);
 
             timer.Start();
             AddEvents();
@@ -115,7 +101,7 @@ namespace Cargo {
             };
             this.MouseUp += (o, e) => {
                 eventManager.ProcessEvent(new MouseUpEvent(new SMouseEvent() {
-                    Position = new Point(e.Location.X,e.Location.Y),
+                    Position = new Point(e.Location.X, e.Location.Y),
                     Button = e.Button
                 }));
             };

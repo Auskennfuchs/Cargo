@@ -9,14 +9,14 @@ using SharpDX;
 namespace Cargo {
     class SimpleRenderTask : RenderTask {
 
-        private RenderTarget renderTarget;
+        private RenderTargetGroup renderTarget;
 
         private VertexShader vShader;
         private PixelShader pShader;
 
         private RasterizerState rasterizerState;
 
-        public SimpleRenderTask(RenderTarget rt) {
+        public SimpleRenderTask(RenderTargetGroup rt) {
             renderTarget = rt;
 
             vShader = ShaderLoader.LoadVertexShader(Renderer.Instance, "assets/shader/simple.hlsl", "VSMain");
@@ -34,7 +34,7 @@ namespace Cargo {
 
         public override void Render(RenderPipeline pipeline) {
             pipeline.OutputMerger.ClearDesiredState();
-            pipeline.OutputMerger.RenderTarget[0] = renderTarget.View;
+            pipeline.OutputMerger.RenderTarget[0] = renderTarget.RenderTargets[0].View;
             pipeline.OutputMerger.DepthStencil = renderTarget.DepthStencilView;
             pipeline.OutputMerger.ApplyRenderTargets(pipeline.DevContext);
             pipeline.ClearTargets(new Color4(0.2f, 0.2f, 0.2f, 1.0f), 1.0f, 0);

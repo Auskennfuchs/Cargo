@@ -6,6 +6,7 @@ namespace CargoEngine.Stages {
         void ClearState();
         void Clone(IStageState src);
         void ResetTracking();
+        void SetSisterState(IStageState sister);
     }
 
     public abstract class Stage<T> where T : IStageState, new() {
@@ -20,6 +21,7 @@ namespace CargoEngine.Stages {
         public Stage() {
             DesiredState = new T();
             CurrentState = new T();
+            DesiredState.SetSisterState(CurrentState);
         }
 
         public void ApplyDesiredState(DeviceContext dc, ParameterManager paramManager) {

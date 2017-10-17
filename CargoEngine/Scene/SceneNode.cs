@@ -70,6 +70,7 @@ namespace CargoEngine.Scene
 
         public SceneNode AddChild(SceneNode c) {
             childs.Add(c);
+            c.Transform.Parent = Transform;
             return this;
         }
 
