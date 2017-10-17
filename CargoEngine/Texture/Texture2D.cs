@@ -25,7 +25,7 @@ namespace CargoEngine.Texture
         }
 
         public Texture2D(int width, int height, Format format, bool mipMaps = true) : base(Dimension.Texture2D, width, height, format) {
-            MipMapCount = mipMaps ? GetNumMipLevels(width, height) : 0;
+            MipMapCount = 0;// mipMaps ? GetNumMipLevels(width, height) : 0;
             dxTexture = new SharpDX.Direct3D11.Texture2D(Renderer.Dev, new Texture2DDescription {
                 Width = width,
                 Height = height,

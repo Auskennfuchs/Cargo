@@ -43,6 +43,8 @@ namespace Cargo
             pipeline.ParameterManager.SetParameter("lightDir", lightDir);
             pipeline.ParameterManager.SetParameter("lightColor", lightColor);
             pipeline.ParameterManager.SetParameter("ambientColor", ambientColor);
+            pipeline.Rasterizer.Viewport = new Viewport(0, 0, lightTarget.Width, lightTarget.Height);
+            pipeline.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
 
             pipeline.ApplyOutputResources();
             pipeline.ApplyShaderResources();

@@ -127,6 +127,7 @@ namespace CargoEngine
             using (var tex = Resource.FromSwapChain<Texture2D>(swapChain, 0)) {
                 rt.Update(null, new RenderTargetView(Renderer.Instance.Device, tex));
             }
+            Viewport = new Viewport(0, 0, width, height);
             Resize?.Invoke(this, new Event.SResizeEvent {
                 Size = new System.Drawing.Size(width, height)
             });

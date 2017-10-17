@@ -14,8 +14,6 @@ namespace Cargo
         private CargoEngine.Texture.Texture2D texture;        
         private SamplerState sampler;
 
-        private CargoEngine.Texture.Texture2D test;
-
         public Terrain() {
             var points = GenerateTerrain();
 
