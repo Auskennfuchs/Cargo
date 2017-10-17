@@ -33,11 +33,11 @@ namespace Cargo
 
             var terrain = new Terrain();
             scene.RootNode.AddChild(terrain);
-//            terrain.Transform.Scale = new Vector3(3.0f, 1.0f, 3.0f);
+            terrain.Transform.Scale = new Vector3(3.0f, 1.0f, 3.0f);
 
 
             cam = new Camera();
-            cam.Transform.Position = new Vector3(0, 1.0f, -1.0f);
+            cam.Transform.Position = new Vector3(0, 50.0f, 0.0f);
             cam.SetProjection(0.1f, 1000.0f, (float)this.Width / (float)this.Height, (float)Math.PI / 4.0f);
             cam.RenderTask = new DeferredRenderTask(swapChain);
             cam.Scene = scene;

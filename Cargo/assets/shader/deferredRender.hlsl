@@ -48,6 +48,7 @@ PS_Output PSMain(VS_Output input)
 	float3 diffuse = AlbedoTexture.Sample(Sampler, input.UV).rgb;
 
 	output.Diffuse = float4(diffuse, 1);
+//	output.Diffuse = float4(input.Normal / 2.0f + 0.5f, 1);
 	output.Normal = float4(input.Normal/2.0f+0.5f, 1);
 	output.Position = input.Position;
 

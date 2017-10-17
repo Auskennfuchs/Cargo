@@ -28,6 +28,10 @@ namespace Cargo
             renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Normals
             renderTargets.AddRenderTarget(Format.R16G16B16A16_Float); //Position
             renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Light
+
+            swapChain.Resize += (o, e) => {
+                renderTargets.Resize(e.Size.Width, e.Size.Height);
+            };
             Init();
         }
 
@@ -59,14 +63,18 @@ namespace Cargo
 
         private void RenderScene(RenderPipeline pipeline) {
             pipeline.OutputMerger.RenderTarget.SetStates(0, renderTargets.GetRenderTargetViews());
-            pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.DefaultDepthStencilState;            
+            pipeline.OutputMerger.DepthStencil = renderTargets.DepthStencilView;
+            pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.DefaultDepthStencilState;
             pipeline.VertexShader.Shader = vsRender;
             pipeline.PixelShader.Shader = psRender;
-//            pipeline.Rasterizer.RasterizerState = rasterizerState;
-            pipeline.ApplyOutputResources();
+            pipeline.Rasterizer.Viewport = renderTargets.Viewport;
+            pipeline.Rasterizer.RasterizerState = rasterizerState;
             pipeline.ParameterManager.SetViewMatrix(ViewMatrix);
             pipeline.ParameterManager.SetProjectionMatrix(ProjectionMatrix);
             pipeline.ParameterManager.SetParameter("viewPosition", ViewMatrix.TranslationVector);
+
+            pipeline.ApplyOutputResources();
+
             if (Scene != null) {
                 Scene.Render(pipeline);
             }

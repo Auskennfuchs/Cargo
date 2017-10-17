@@ -115,10 +115,6 @@ namespace CargoEngine
             }
         }
 
-        public void ApplyInputResources() {
-            InputAssembler.ApplyDesiredState(DevContext, ParameterManager);
-        }
-
         public void ApplyOutputResources() {
             OutputMerger.ApplyDesiredState(DevContext, ParameterManager);
         }
@@ -131,6 +127,9 @@ namespace CargoEngine
                 InputAssembler.CurrentState.InputElements.State = InputAssembler.DesiredState.InputElements.State;
                 InputAssembler.DesiredState.InputElements.ResetTracking();
             }
+
+            InputAssembler.ApplyDesiredState(DevContext, ParameterManager);
+
             VertexShader.ApplyDesiredState(DevContext, ParameterManager);
 
             PixelShader.ApplyDesiredState(DevContext, ParameterManager);

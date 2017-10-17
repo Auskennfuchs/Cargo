@@ -8,8 +8,8 @@ namespace Cargo
 {
     class Terrain : SceneNode
     {
-        private const uint MAP_SIZE = 2;
-        private const uint CHUNK_SIZE = 2;
+        private const uint MAP_SIZE = 256;
+        private const uint CHUNK_SIZE = 64;
 
         private CargoEngine.Texture.Texture2D texture;
         private SamplerState sampler;
@@ -78,64 +78,72 @@ namespace Cargo
     {
         public TerrainChunk(float[,] heightMap, uint chunkSize, uint offsetX, uint offsetY, ShaderResourceView texture, SamplerState sampler) {
             var mapSize = chunkSize;
-            var triPoints = new Vector3[mapSize * mapSize * 9];
-            var triNormals = new Vector3[mapSize * mapSize * 9];
-            var triUV = new Vector2[mapSize * mapSize * 9];
-            for (var z = 0; z < mapSize; z++) {
-                for (var x = 0; x < mapSize; x++) {
-                    triPoints[(x + z * mapSize) * 9 + 0] = new Vector3(x + offsetX - 0.5f, GetHeight(heightMap, x + offsetX, z + offsetY, -1, -1), z + offsetY - 0.5f);
-                    triPoints[(x + z * mapSize) * 9 + 1] = new Vector3(x + offsetX - 0.0f, GetHeight(heightMap, x + offsetX, z + offsetY, 0, -1), z + offsetY - 0.5f);
-                    triPoints[(x + z * mapSize) * 9 + 2] = new Vector3(x + offsetX + 0.5f, GetHeight(heightMap, x + offsetX, z + offsetY, 1, -1), z + offsetY - 0.5f);
-                    triPoints[(x + z * mapSize) * 9 + 3] = new Vector3(x + offsetX - 0.5f, GetHeight(heightMap, x + offsetX, z + offsetY, -1, 0), z + offsetY - 0);
-                    triPoints[(x + z * mapSize) * 9 + 4] = new Vector3(x + offsetX - 0.0f, GetHeight(heightMap, x + offsetX, z + offsetY, 0, 0), z + offsetY - 0);
-                    triPoints[(x + z * mapSize) * 9 + 5] = new Vector3(x + offsetX + 0.5f, GetHeight(heightMap, x + offsetX, z + offsetY, 1, 0), z + offsetY - 0);
-                    triPoints[(x + z * mapSize) * 9 + 6] = new Vector3(x + offsetX - 0.5f, GetHeight(heightMap, x + offsetX, z + offsetY, -1, 1), z + offsetY + 0.5f);
-                    triPoints[(x + z * mapSize) * 9 + 7] = new Vector3(x + offsetX - 0.0f, GetHeight(heightMap, x + offsetX, z + offsetY, 0, 1), z + offsetY + 0.5f);
-                    triPoints[(x + z * mapSize) * 9 + 8] = new Vector3(x + offsetX + 0.5f, GetHeight(heightMap, x + offsetX, z + offsetY, 1, 1), z + offsetY + 0.5f);
+            var fullMapSize = heightMap.GetLength(1) - 1;
+            var numPoints = mapSize * 2 + 1;
+            var triPoints = new Vector3[numPoints * numPoints];
+            var triUV = new Vector2[numPoints * numPoints];
+            for (var z = 0; z < numPoints; z++) {
+                for (var x = 0; x < numPoints; x++) {
+                    if (z % 2 == 0) {
+                        if (x % 2 == 0) {
+                            triPoints[x + z * numPoints] = new Vector3(x / 2 + offsetX - 0.5f,
+                                GetHeight(heightMap, x / 2 + offsetX, z / 2 + offsetY, -1, -1),
+                                fullMapSize - (z / 2 + offsetY - 0.5f));
+                        }
+                        else {
+                            triPoints[x + z * numPoints] = new Vector3(x / 2 + offsetX - 0.0f,
+                                GetHeight(heightMap, x / 2 + offsetX, z / 2 + offsetY, 0, -1),
+                                fullMapSize - (z / 2 + offsetY - 0.5f));
+                        }
+
+                    }
+                    else {
+                        if (x % 2 == 0) {
+                            triPoints[x + z * numPoints] = new Vector3(x / 2 + offsetX - 0.5f,
+                                GetHeight(heightMap, x / 2 + offsetX, z / 2 + offsetY, -1, 0),
+                                fullMapSize - (z / 2 + offsetY - 0));
+                        }
+                        else {
+                            triPoints[x + z * numPoints] = new Vector3(x / 2 + offsetX - 0.0f,
+                                GetHeight(heightMap, x / 2 + offsetX, z / 2 + offsetY, 0, 0),
+                                fullMapSize - (z / 2 + offsetY - 0));
+                        }
+                    }
+                    triUV[x + z * numPoints] = new Vector2(x / (numPoints - 1.0f), z / (numPoints - 1.0f));
                 }
             }
 
             var indices = new uint[mapSize * mapSize * 24];
             var count = 0;
-            for (uint y = 0; y < mapSize; y++) {
-                for (uint x = 0; x < mapSize; x++) {
-                    indices[count++] = x + y * mapSize * 3;
-                    indices[count++] = x + 1 + y * mapSize * 3;
-                    indices[count++] = x + 1 + (y + 1) * mapSize * 3;
+            for (uint y = 0; y < numPoints - 1; y++) {
+                for (uint x = 0; x < numPoints - 1; x++) {
+                    var mapSize2 = numPoints;
+                    var fx = x;
+                    if ((x % 2 == 0 && y % 2 == 0) || (x % 2 != 0 && y % 2 != 0)) {
+                        indices[count++] = fx + y * mapSize2;
+                        indices[count++] = fx + 1 + y * mapSize2;
+                        indices[count++] = fx + 1 + (y + 1) * mapSize2;
 
-                    indices[count++] = x + y * mapSize * 3;
-                    indices[count++] = x + (y + 1) * mapSize * 3;
-                    indices[count++] = x + 1 + (y + 1) * mapSize * 3;
+                        indices[count++] = fx + y * mapSize2;
+                        indices[count++] = fx + 1 + (y + 1) * mapSize2;
+                        indices[count++] = fx + (y + 1) * mapSize2;
 
-                    indices[count++] = x + 1 + y * mapSize * 3;
-                    indices[count++] = x + 2 + y * mapSize * 3;
-                    indices[count++] = x + 1 + (y + 1) * mapSize * 3;
+                    }
+                    if ((x % 2 != 0 && y % 2 == 0) || (x % 2 == 0 && y % 2 != 0)) {
+                        indices[count++] = fx + y * mapSize2;
+                        indices[count++] = fx + 1 + y * mapSize2;
+                        indices[count++] = fx + (y + 1) * mapSize2;
 
-                    indices[count++] = x + 1 + (y + 1) * mapSize * 3;
-                    indices[count++] = x + 2 + y * mapSize * 3;
-                    indices[count++] = x + 2 + (y + 1) * mapSize * 3;
-
-                    indices[count++] = x + (y + 1) * mapSize * 3;
-                    indices[count++] = x + 1 + (y + 1) * mapSize * 3;
-                    indices[count++] = x + (y + 2) * mapSize * 3;
-
-                    indices[count++] = x + (y + 2) * mapSize * 3;
-                    indices[count++] = x + 1 + (y + 1) * mapSize * 3;
-                    indices[count++] = x + 1 + (y + 2) * mapSize * 3;
-
-                    indices[count++] = x + 1 + (y + 1) * mapSize * 3;
-                    indices[count++] = x + 2 + (y + 1) * mapSize * 3;
-                    indices[count++] = x + 2 + (y + 2) * mapSize * 3;
-
-                    indices[count++] = x + 1 + (y + 1) * mapSize * 3;
-                    indices[count++] = x + 1 + (y + 2) * mapSize * 3;
-                    indices[count++] = x + 2 + (y + 2) * mapSize * 3;
+                        indices[count++] = fx + (y + 1) * mapSize2;
+                        indices[count++] = fx + 1 + y * mapSize2;
+                        indices[count++] = fx + 1 + (y + 1) * mapSize2;
+                    }
                 }
             }
 
             var geo = new GeometryComponent();
             geo.Executor.Geometry.Vertices = triPoints;
-            geo.Executor.Geometry.Normals = triNormals;
+            geo.Executor.Geometry.Normals = CalcNormals(triPoints, numPoints);
             geo.Executor.Geometry.Indices = indices;
             geo.Executor.Geometry.UVs = triUV;
             geo.Executor.Geometry.Topology = Topology.TriangleList;
@@ -145,6 +153,12 @@ namespace Cargo
         }
 
         private float GetHeight(float[,] heightMap, long px, long py, int ox, int oy) {
+            if (px >= heightMap.GetLength(0)) {
+                px = heightMap.GetLength(0) - 1;
+            }
+            if (py >= heightMap.GetLength(1)) {
+                py = heightMap.GetLength(1) - 1;
+            }
             if (px + ox < 0) {
                 ox = 0;
             }
@@ -157,8 +171,51 @@ namespace Cargo
             if (py + oy >= heightMap.GetLength(1)) {
                 oy = 0;
             }
-            //            return (heightMap[px, py] + heightMap[px + ox, py + oy]) / 2.0f * 0.3f;
-            return 0.0f;
+            return (heightMap[px, py] + heightMap[px + ox, py + oy]) / 2.0f;
         }
+
+        private Vector3[] CalcNormals(Vector3[] points, uint mapSize) {
+            var normals = new Vector3[mapSize * mapSize];
+            for (var y = 0; y < mapSize; y++) {
+                for (var x = 0; x < mapSize; x++) {
+                    var normal = Vector3.Up;
+                    float nw, n, ne, e, se, s, sw, w;
+                    nw = n = ne = e = se = s = sw = w = n = points[x + y * mapSize].Y;
+                    var faces = 0;
+                    if (x > 0) {
+                        n = points[x - 1 + (y) * mapSize].Y;
+                        faces++;
+                    }
+                    if (x < mapSize - 1) {
+                        s = points[x + 1 + (y) * mapSize].Y;
+                        faces++;
+                    }
+                    if (y > 0) {
+                        w = points[x + (y - 1) * mapSize].Y;
+                        faces++;
+                    }
+                    if (y < mapSize - 1) {
+                        e = points[x + (y + 1) * mapSize].Y;
+                        faces++;
+                    }
+                    if (x > 0 && y > 0 && x < mapSize - 1 && y < mapSize - 1) {
+                        nw = points[x - 1 + (y - 1) * mapSize].Y;
+                        ne = points[x - 1 + (y + 1) * mapSize].Y;
+                        se = points[x + 1 + (y + 1) * mapSize].Y;
+                        sw = points[x + 1 + (y - 1) * mapSize].Y;
+                        faces += 4;
+                    }
+                    var sizeFactor = 1.0f / 8.0f;
+                    float dydx = ((ne + 2 * e + se) - (nw + 2 * w + sw)) * sizeFactor;
+                    float dydz = ((sw + 2 * s + se) - (nw + 2 * n + ne)) * sizeFactor;
+
+                    normal = new Vector3(-dydx, 1.0f, -dydz);
+
+                    normals[x + y * mapSize] = Vector3.Normalize(normal);
+                }
+            }
+            return normals;
+        }
+
     }
 }

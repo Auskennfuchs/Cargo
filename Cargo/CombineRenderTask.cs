@@ -28,7 +28,6 @@ namespace Cargo
         }
 
         public override void Render(RenderPipeline pipeline) {
-            pipeline.OutputMerger.ClearDesiredState();
             pipeline.OutputMerger.RenderTarget.SetState(0, swapChain.RenderTarget.RenderTargets[0].View);
             pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.NoDepthStencilState;
             pipeline.VertexShader.Shader = vsCombine;
@@ -37,9 +36,9 @@ namespace Cargo
             pipeline.ParameterManager.SetParameter("AlbedoTexture", albedo.SRV);
             pipeline.ParameterManager.SetParameter("LightTexture", light.SRV);
             pipeline.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            pipeline.Rasterizer.Viewport = swapChain.Viewport;
 
             pipeline.ApplyOutputResources();
-            pipeline.ApplyInputResources();
             pipeline.ApplyShaderResources();
             pipeline.Draw(3, 0);
         }

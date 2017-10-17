@@ -6,6 +6,7 @@ using SharpDX.DXGI;
 using CargoEngine.Exception;
 using System;
 using SharpDX.Direct3D;
+using System.Linq;
 
 namespace CargoEngine
 {
@@ -114,10 +115,25 @@ namespace CargoEngine
 
         private List<VertexBufferBinding> buffers = new List<VertexBufferBinding>();
         private Buffer indexBuffer;
-        private Format indexBufferFormat;        
+        private Format indexBufferFormat;
 
         public Mesh() {
 
+        }
+
+        public void Clear() {
+            buffers.ForEach(buf => {
+                if (buf.Buffer != null) {
+                    buf.Buffer.Dispose();
+                }
+            });
+            buffers.Clear();
+            if (indexBuffer != null) {
+                indexBuffer.Dispose();
+            }
+            VertexCount = 0;
+            NumIndices = 0;
+            InputElements.Clear();
         }
 
         public void Apply(RenderPipeline pipeline) {
@@ -129,6 +145,31 @@ namespace CargoEngine
             pipeline.InputAssembler.InputElements = InputElements;
         }
 
+        public void GenerateNormals() {
+            if (indices == null || vertices == null) {
+                return;
+            }
+            normals = new Vector3[vertices.Length];
+            for (var i = 0; i < normals.Length; i++) {
+                normals[i] = Vector3.Up;
+            }
+            for (var i = 0; i < indices.Length; i += 3) {
+                var p1 = indices[i];
+                var p2 = indices[i + 1];
+                var p3 = indices[i + 2];
+                var v1 = vertices[p1];
+                var v2 = vertices[p2];
+                var v3 = vertices[p3];
+
+                var u = Vector3.Normalize(v2 - v1);
+                var v = Vector3.Normalize(v3 - v1);
+                normals[p1] += Vector3.Cross(u, v);
+            }
+            foreach (var n in normals) {
+                n.Normalize();
+            }
+        }
+
         private void UpdateBuffers() {
             if (!Modified) {
                 // nothing to do here
@@ -138,7 +179,7 @@ namespace CargoEngine
             Modified = false;
 
             if (Vertices != null && Vertices.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Vertices),"POSITION",Format.R32G32B32_Float);
+                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Vertices), "POSITION", Format.R32G32B32_Float);
             }
             if (Normals != null && Normals.Length > 0) {
                 AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Normals), "NORMAL", Format.R32G32B32_Float);
@@ -153,30 +194,21 @@ namespace CargoEngine
                 AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Tangents), "TANGENT", Format.R32G32B32_Float);
             }
 
-            if (Indices!=null && Indices.Length > 0) {
+            if (Indices != null && Indices.Length > 0) {
                 NumIndices = Indices.Length;
                 if (VertexCount <= ushort.MaxValue) {
                     indexBuffer = Buffer.Create(Renderer.Instance.Device, BindFlags.IndexBuffer, Array.ConvertAll(Indices, i => (ushort)i));
                     indexBufferFormat = Format.R16_UInt;
-                } else {
+                }
+                else {
                     indexBuffer = Buffer.Create(Renderer.Instance.Device, BindFlags.IndexBuffer, Indices);
                     indexBufferFormat = Format.R32_UInt;
                 }
             }
         }
 
-        public void Clear() {
-            buffers.Clear();
-            if (indexBuffer != null) {
-                indexBuffer.Dispose();
-            }
-            VertexCount = 0;
-            NumIndices = 0;
-            InputElements.Clear();
-        }
-
-        private void AddBuffer(Buffer buf, string inputName, Format format, int stride=0) {
-            if(stride==0) {
+        private void AddBuffer(Buffer buf, string inputName, Format format, int stride = 0) {
+            if (stride == 0) {
                 stride = format.SizeOfInBytes();
             }
             var elementCount = buf.Description.SizeInBytes / stride;
