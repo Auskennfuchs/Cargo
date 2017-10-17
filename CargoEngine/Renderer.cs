@@ -3,10 +3,21 @@ using System.Collections.Generic;
 using CargoEngine.Exception;
 using SharpDX;
 using SharpDX.Direct3D11;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
-namespace CargoEngine {
+namespace CargoEngine
+{
 
-    public class Renderer: IDisposable {
+    public class Renderer : IDisposable
+    {
+
+        private struct TaskPayload
+        {
+            public RenderTask task;
+            public int pipelineNumber;
+        }
 
         private const int NUM_THREADS = 4;
 
@@ -29,12 +40,12 @@ namespace CargoEngine {
 
         private RenderPipeline[] deferredPipelines = new RenderPipeline[NUM_THREADS];
 
-        private Dictionary<int,InputLayout> inputLayouts;
+        private Dictionary<int, InputLayout> inputLayouts;
 
-        private Queue<RenderTask> taskQueue = new Queue<RenderTask>();
+        private ConcurrentQueue<RenderTask> taskQueue = new ConcurrentQueue<RenderTask>();
 
         public Renderer() {
-            if(Instance!=null) {
+            if (Instance != null) {
                 throw CargoEngineException.Create("multiple instances of renderer");
             }
             Instance = this;
@@ -50,14 +61,14 @@ namespace CargoEngine {
 
             inputLayouts = new Dictionary<int, InputLayout>();
 
-            for(var i = 0; i < NUM_THREADS; i++) {
+            for (var i = 0; i < NUM_THREADS; i++) {
                 var pipeline = new RenderPipeline(Device);
                 deferredPipelines[i] = pipeline;
             }
         }
 
         public void Dispose() {
-            foreach(var rp in deferredPipelines) {
+            foreach (var rp in deferredPipelines) {
                 rp.Dispose();
             }
             if (Device != null) {
@@ -71,28 +82,39 @@ namespace CargoEngine {
 
         public void ExecuteTasks() {
             var taskCount = taskQueue.Count;
-            for (int i = 0, count=0; i < taskCount; i+=count) {
+            List<Task> tasks = new List<Task>();
+            for (int i = 0, count = 0; i < taskCount; i += count) {
                 var j = 0;
-                for(; j < NUM_THREADS && i + j < taskCount; j++) {
+                tasks.Clear();
+                for (count = 0; j < NUM_THREADS && i + j < taskCount; j++) {
                     count++;
-                    var task = taskQueue.Dequeue();
-                    task.Render(deferredPipelines[0]);
-                    deferredPipelines[0].FinishCommandList();
-                    ImmPipeline.ExecuteCommandList(deferredPipelines[0].CommandList);
-                    deferredPipelines[0].ReleaseCommandList();
+                    RenderTask task;
+                    if(!taskQueue.TryDequeue(out task)) {
+                        throw new SystemException("error dequeueing rendertask");
+                    }
+                    var payload = new TaskPayload {
+                        pipelineNumber = j,
+                        task = task
+                    };
+                    var t = new Task(() => { RunTask(payload); });
+                    t.Start();
+                    tasks.Add(t);
                 }
-                /*                for (var k = 0; k < j; k++) {
-                                    deferredPipelines[k].FinishCommandList();
-                                    ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
-                                    deferredPipelines[k].ReleaseCommandList();
-                                }*/
+                Task.WaitAll(tasks.ToArray());
+                for (var k = 0; k < j; k++) {
+                    deferredPipelines[k].FinishCommandList();
+                    ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
+                    deferredPipelines[k].ReleaseCommandList();
+                }
             }
-
-            taskQueue.Clear();
         }
 
-        public void SetGlobalParameter(string name,Matrix mat) {
-            foreach(var pipeline in deferredPipelines) {
+        private void RunTask(TaskPayload payload) {
+            payload.task.Render(deferredPipelines[payload.pipelineNumber]);
+        }
+
+        public void SetGlobalParameter(string name, Matrix mat) {
+            foreach (var pipeline in deferredPipelines) {
                 pipeline.ParameterManager.SetParameter(name, mat);
             }
         }

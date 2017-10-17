@@ -5,8 +5,10 @@ using SharpDX;
 using SharpDX.Direct3D11;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
-namespace CargoEngine {
-    public class ConstantBuffer : IDisposable {
+namespace CargoEngine
+{
+    public class ConstantBuffer : IDisposable
+    {
         public Buffer Buffer {
             get;
             private set;
@@ -71,6 +73,10 @@ namespace CargoEngine {
         private void UpdateCpuBuffer(ParameterManager paramManager) {
             foreach (string key in members.Keys) {
                 ConstantBufferParameter param = members[key];
+                var managerParam = paramManager.GetParameter(key);
+                if (managerParam == null) {
+                    continue;
+                }
                 param.Value = paramManager.GetParameter(key).Value;
                 param.UpdateBuffer();
 

@@ -1,17 +1,20 @@
 ﻿using CargoEngine.Parameter;
 using SharpDX.Direct3D11;
 
-namespace CargoEngine.Stages {
+namespace CargoEngine.Stages
+{
 
-    public enum ShaderStages {
-        VERTEX=0,
+    public enum ShaderStages
+    {
+        VERTEX = 0,
         PIXEL,
         GEOMETRY,
         HULL,
         NUM_SHADERSTAGES
     }
 
-    public abstract class ShaderStage<ShaderClass> : Stage<ShaderStageState<ShaderClass>> where ShaderClass : DeviceChild{
+    public abstract class ShaderStage<ShaderClass> : Stage<ShaderStageState<ShaderClass>> where ShaderClass : DeviceChild
+    {
 
         public TStateArrayMonitor<ConstantBuffer> ConstantBuffer {
             get {
@@ -57,7 +60,7 @@ namespace CargoEngine.Stages {
         protected abstract void BindShaderResources(DeviceContext dc);
         protected abstract void BindSamplerResources(DeviceContext dc);
 
-            public void UpdateConstantBufferParameter(DeviceContext dc, ParameterManager paramManager) {
+        public void UpdateConstantBufferParameter(DeviceContext dc, ParameterManager paramManager) {
             for (var i = 0; i < DesiredState.ConstantBuffer.NumSlots; i++) {
                 if (DesiredState.ConstantBuffer.States[i] != null) {
                     DesiredState.ConstantBuffer.States[i].UpdateBuffer(dc, paramManager);
@@ -70,15 +73,16 @@ namespace CargoEngine.Stages {
                 var slotPos = DesiredState.ConstantBuffer.StartSlot + i;
                 if (DesiredState.ConstantBuffer.States[slotPos] != null) {
                     cBuffers[i] = DesiredState.ConstantBuffer.States[slotPos].Buffer;
-                } else {
+                }
+                else {
                     cBuffers[i] = null;
                 }
             }
         }
 
         private void UpdateShaderResources(ParameterManager paramManager) {
-            if(DesiredState.Shader.State!=null) {
-                foreach(var tex in DesiredState.Shader.State.Textures) {
+            if (DesiredState.Shader.State != null) {
+                foreach (var tex in DesiredState.Shader.State.Textures) {
                     DesiredState.Resources.SetState(tex.Key, paramManager.GetSRVParameter(tex.Value));
                 }
                 foreach (var sampler in DesiredState.Shader.State.Samplers) {
