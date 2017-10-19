@@ -102,10 +102,6 @@ namespace CargoEngine
             }
         }
 
-        public void ApplyRenderTargets() {
-            OutputMerger.ApplyRenderTargets(DevContext);
-        }
-
         public void ClearTargets(Color4 col, float depth, byte stencil) {
             var rtCount = OutputMerger.CurrentState.GetRenderTargetCount();
             for (int i = 0; i < rtCount; i++) {

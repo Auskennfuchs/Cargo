@@ -22,6 +22,6 @@ namespace CargoEngine {
         public abstract void Render(RenderPipeline pipeline);
         public abstract void QueueRender();
 
-        public abstract void Dispose();
+        public virtual void Dispose() { }
     }
 }

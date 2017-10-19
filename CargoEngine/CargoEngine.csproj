@@ -115,7 +115,7 @@
     <Compile Include="RenderLoop.cs" />
     <Compile Include="RenderPipeline.cs" />
     <Compile Include="Parameter\ShaderResourceParameter.cs" />
-    <Compile Include="Parameter\Vector3Parameter.cs" />
+    <Compile Include="Parameter\VectorParameter.cs" />
     <Compile Include="RenderTask.cs" />
     <Compile Include="Scene\EntityComponent.cs" />
     <Compile Include="Scene\EventListenerComponent.cs" />

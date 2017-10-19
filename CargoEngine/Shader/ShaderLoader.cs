@@ -10,8 +10,10 @@ using System;
 using SharpDX.Direct3D11;
 using CargoEngine.Parameter;
 
-namespace CargoEngine.Shader {
-    public class ShaderLoader : IDisposable {
+namespace CargoEngine.Shader
+{
+    public class ShaderLoader : IDisposable
+    {
         private Dictionary<string, VertexShader> vertexShaders = new Dictionary<string, VertexShader>();
         private Dictionary<string, PixelShader> pixelShaders = new Dictionary<string, PixelShader>();
 
@@ -22,11 +24,13 @@ namespace CargoEngine.Shader {
         }
 
         public VertexShader LoadVertexShader(string file, string entryfunction) {
-            if(vertexShaders.ContainsKey(file)) {
+            if (vertexShaders.ContainsKey(file)) {
                 return vertexShaders[file];
             }
-            var shader = LoadShader<VertexShader,VShader>(file, entryfunction, "vs_5_0");
-            vertexShaders.Add(file, shader);
+            var shader = LoadShader<VertexShader, VShader>(file, entryfunction, "vs_5_0");
+            if (shader != null) {
+                vertexShaders.Add(file, shader);
+            }
             return shader;
         }
 
@@ -34,12 +38,14 @@ namespace CargoEngine.Shader {
             if (pixelShaders.ContainsKey(file)) {
                 return pixelShaders[file];
             }
-            var shader = LoadShader<PixelShader,PShader>(file, entryfunction, "ps_5_0");
-            pixelShaders.Add(file, shader);
+            var shader = LoadShader<PixelShader, PShader>(file, entryfunction, "ps_5_0");
+            if (shader != null) {
+                pixelShaders.Add(file, shader);
+            }
             return shader;
         }
 
-        private T LoadShader<T,U>(string file, string entryfunction, string profile) where T: ShaderBase<U> where U: DeviceChild {
+        private T LoadShader<T, U>(string file, string entryfunction, string profile) where T : ShaderBase<U> where U : DeviceChild {
             try {
                 ShaderFlags sFlags = ShaderFlags.PackMatrixRowMajor;
 #if DEBUG
@@ -50,7 +56,7 @@ namespace CargoEngine.Shader {
                         MessageBox.Show(bytecode.Message);
                         return null;
                     }
-                    return ReflectBytecode<T,U>(bytecode);
+                    return ReflectBytecode<T, U>(bytecode);
                 }
             }
             catch (System.Exception exc) {
@@ -58,7 +64,7 @@ namespace CargoEngine.Shader {
             }
         }
 
-        private T ReflectBytecode<T,U>(ShaderBytecode bytecode) where T: ShaderBase<U> where U: DeviceChild {
+        private T ReflectBytecode<T, U>(ShaderBytecode bytecode) where T : ShaderBase<U> where U : DeviceChild {
             var inputSignature = ShaderSignature.GetInputSignature(bytecode);
             var shaderPtr = Activator.CreateInstance(typeof(U), new object[] { renderer.Device, bytecode.Data, null }) as U;
             using (var reflection = new ShaderReflection(bytecode)) {
@@ -70,7 +76,7 @@ namespace CargoEngine.Shader {
             }
         }
 
-        private (Dictionary<int,string>, Dictionary<int, string>) ReflectResources(ShaderReflection reflection) {
+        private (Dictionary<int, string>, Dictionary<int, string>) ReflectResources(ShaderReflection reflection) {
             var textures = new Dictionary<int, string>();
             var samplers = new Dictionary<int, string>();
             for (var resIndex = 0; resIndex < reflection.Description.BoundResources; resIndex++) {
@@ -84,7 +90,7 @@ namespace CargoEngine.Shader {
                         break;
                 }
             }
-            return (textures,samplers);
+            return (textures, samplers);
         }
 
         private List<ConstantBuffer> ReflectConstantBuffers(ShaderReflection reflection) {
@@ -105,23 +111,41 @@ namespace CargoEngine.Shader {
                                 }
                                 constantBuffer.AddParameter(refVar.Description.Name, matParam);
                             }
-                            if (type.Description.RowCount == 1 && type.Description.ColumnCount == 3) {
-                                var vec3Param = new Vector3Parameter(refVar.Description.StartOffset);
-                                if (vec3Param.Size != refVar.Description.Size) {
-                                    throw CargoEngineException.Create("Error ConstantBufferParamtersize");
+                            if (type.Description.RowCount == 1) {
+                                switch (type.Description.ColumnCount) {
+                                    case 2:
+                                        var vec2Param = new Vector2Parameter(refVar.Description.StartOffset);
+                                        if (vec2Param.Size != refVar.Description.Size) {
+                                            throw CargoEngineException.Create("Error ConstantBufferParamtersize");
+                                        }
+                                        constantBuffer.AddParameter(refVar.Description.Name, vec2Param);
+                                        break;
+                                    case 3:
+                                        var vec3Param = new Vector3Parameter(refVar.Description.StartOffset);
+                                        if (vec3Param.Size != refVar.Description.Size) {
+                                            throw CargoEngineException.Create("Error ConstantBufferParamtersize");
+                                        }
+                                        constantBuffer.AddParameter(refVar.Description.Name, vec3Param);
+                                        break;
+                                    case 4:
+                                        var vec4Param = new Vector4Parameter(refVar.Description.StartOffset);
+                                        if (vec4Param.Size != refVar.Description.Size) {
+                                            throw CargoEngineException.Create("Error ConstantBufferParamtersize");
+                                        }
+                                        constantBuffer.AddParameter(refVar.Description.Name, vec4Param);
+                                        break;
                                 }
-                                constantBuffer.AddParameter(refVar.Description.Name, vec3Param);
                             }
                             break;
                     }
+                    constantBuffers.Add(constantBuffer);
                 }
-                constantBuffers.Add(constantBuffer);
             }
             return constantBuffers;
         }
 
         public void Dispose() {
-            foreach(var vs in vertexShaders) {
+            foreach (var vs in vertexShaders) {
                 vs.Value.Dispose();
             }
             vertexShaders.Clear();

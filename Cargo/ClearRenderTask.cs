@@ -21,11 +21,6 @@ namespace Cargo
             psClear = Renderer.ShaderLoader.LoadPixelShader("assets/shader/deferredCleanup.hlsl", "PSMain");
         }
 
-        public override void Dispose() {
-            vsClear.Dispose();
-            psClear.Dispose();
-        }
-
         public override void QueueRender() {
         }
 

@@ -18,7 +18,7 @@ namespace Cargo
 
         private SwapChain swapChain;
 
-        private RenderTask clearRenderTask, lightRenderTask, combineRenderTask;
+        private RenderTask clearRenderTask, lightRenderTask, combineRenderTask, fxaaRenderTask;
 
         public DeferredRenderTask(SwapChain swapChain) {
             this.swapChain = swapChain;
@@ -27,6 +27,7 @@ namespace Cargo
             renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Normals
             renderTargets.AddRenderTarget(Format.R16G16B16A16_Float); //Position
             renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Light
+            renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Combine
 
             swapChain.Resize += (o, e) => {
                 renderTargets.Resize(e.Size.Width, e.Size.Height);
@@ -45,7 +46,8 @@ namespace Cargo
 
             clearRenderTask = new ClearRenderTask(renderTargets);
             lightRenderTask = new LightRenderTask(renderTargets.RenderTargets[3], renderTargets.RenderTargets[1], renderTargets.RenderTargets[2]);
-            combineRenderTask = new CombineRenderTask(swapChain, renderTargets.RenderTargets[0], renderTargets.RenderTargets[3]);
+            combineRenderTask = new CombineRenderTask(renderTargets.RenderTargets[4], renderTargets.RenderTargets[0], renderTargets.RenderTargets[3]);
+            fxaaRenderTask = new PostProcessFXAA(swapChain.RenderTarget.RenderTargets[0],renderTargets.RenderTargets[4]);
         }
 
 
@@ -54,6 +56,7 @@ namespace Cargo
             Renderer.Instance.QueueTask(this);
             Renderer.Instance.QueueTask(lightRenderTask);
             Renderer.Instance.QueueTask(combineRenderTask);
+            Renderer.Instance.QueueTask(fxaaRenderTask);
         }
 
         public override void Render(RenderPipeline pipeline) {
@@ -63,7 +66,7 @@ namespace Cargo
         private void RenderScene(RenderPipeline pipeline) {
             pipeline.OutputMerger.RenderTarget.SetStates(0, renderTargets.GetRenderTargetViews());
             pipeline.OutputMerger.DepthStencil = renderTargets.DepthStencilView;
-            pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.DefaultDepthStencilState;
+            pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.DefaultDepthStencilState;            
             pipeline.VertexShader.Shader = vsRender;
             pipeline.PixelShader.Shader = psRender;
             pipeline.Rasterizer.Viewport = renderTargets.Viewport;
@@ -81,18 +84,9 @@ namespace Cargo
 
         public override void Dispose() {
             renderTargets.Dispose();
-            if (vsRender != null) {
-                vsRender.Dispose();
-            }
-            if (psRender != null) {
-                psRender.Dispose();
-            }
             if (rasterizerState != null) {
                 rasterizerState.Dispose();
             }
-            clearRenderTask.Dispose();
-            lightRenderTask.Dispose();
-            combineRenderTask.Dispose();
         }
     }
 }

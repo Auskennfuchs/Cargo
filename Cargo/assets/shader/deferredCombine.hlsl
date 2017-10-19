@@ -22,6 +22,5 @@ float4 PSMain(VS_Output input) : SV_Target
 	float4 light = LightTexture.Sample(Sampler, input.TextureUV);
 
 	return float4(albedo*light.rgb, 1);
-//	return float4(albedo, 1);
 }
 

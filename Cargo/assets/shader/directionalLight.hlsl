@@ -1,6 +1,5 @@
 ﻿Texture2D NormalTextureInput : register(t1);
 Texture2D PositionTextureInput : register(t2);
-SamplerState NormalSampler : register(s0);
 
 cbuffer LightBuffer: register(b0) {
 	float3 lightDir;

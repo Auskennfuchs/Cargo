@@ -34,6 +34,15 @@ namespace CargoEngine.Parameter
             return (Matrix)GetParam(name, RenderParameterType.Matrix);
         }
 
+        public void SetParameter(string name, Vector2 vec) {
+            if (!SetParam(name, vec, RenderParameterType.Vector2)) {
+                parameters.Add(name, new Vector2Parameter(vec));
+            }
+        }
+        public Vector2 GetVector2Parameter(string name) {
+            return (Vector2)GetParam(name, RenderParameterType.Vector2);
+        }
+
         public void SetParameter(string name, Vector3 vec) {
             if (!SetParam(name, vec, RenderParameterType.Vector3)) {
                 parameters.Add(name, new Vector3Parameter(vec));
@@ -45,7 +54,7 @@ namespace CargoEngine.Parameter
 
         public void SetParameter(string name, Vector4 vec) {
             if (!SetParam(name, vec, RenderParameterType.Vector4)) {
-                throw new NotImplementedException();
+                parameters.Add(name, new Vector4Parameter(vec));
             }
         }
         public Vector4 GetVector4Parameter(string name) {

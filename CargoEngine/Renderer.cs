@@ -56,6 +56,8 @@ namespace CargoEngine
 
         private ConcurrentQueue<RenderTask> taskQueue = new ConcurrentQueue<RenderTask>();
 
+        private Dictionary<int, SamplerState> samplerStates = new Dictionary<int, SamplerState>();
+
         public Renderer() {
             if (Instance != null) {
                 throw CargoEngineException.Create("multiple instances of renderer");
@@ -82,10 +84,14 @@ namespace CargoEngine
 
         public void Dispose() {
             Shaders.Dispose();
+            foreach(var sampler in samplerStates) {
+                sampler.Value.Dispose();
+            }
+            samplerStates.Clear();
             foreach (var rp in deferredPipelines) {
                 rp.Dispose();
             }
-            deferredPipelines = null;
+            deferredPipelines = null;     
             ImmPipeline.Dispose();
             ImmPipeline = null;
             if (Device != null) {
@@ -148,7 +154,15 @@ namespace CargoEngine
                 MaximumAnisotropy = Math.Max(1, aniso),
             };
             var hash = samplerStateDescription.GetHashCode();
-            return new SamplerState(Renderer.Instance.Device, samplerStateDescription);
+            if (samplerStates.ContainsKey(hash)) {
+                return samplerStates[hash];
+            }
+
+            var sampler = new SamplerState(Device, samplerStateDescription);
+            if (sampler != null) {
+                samplerStates.Add(hash, sampler);
+            }
+            return sampler;
         }
     }
 }
