@@ -18,10 +18,16 @@ namespace Cargo
             this.swapChain = swapChain;
             this.albedo = albedo;
             this.light = light;
-            vsCombine = ShaderLoader.LoadVertexShader(Renderer.Instance, "assets/shader/deferredCombine.hlsl", "VSMain");
-            psCombine = ShaderLoader.LoadPixelShader(Renderer.Instance, "assets/shader/deferredCombine.hlsl", "PSMain");
+            vsCombine = Renderer.ShaderLoader.LoadVertexShader("assets/shader/deferredCombine.hlsl", "VSMain");
+            psCombine = Renderer.ShaderLoader.LoadPixelShader("assets/shader/deferredCombine.hlsl", "PSMain");
 
-            sampler = Renderer.Instance.CreateSamplerState(TextureAddressMode.Wrap, Filter.Anisotropic, 16);
+            sampler = Renderer.Instance.CreateSamplerState(TextureAddressMode.Wrap, Filter.MinMagMipPoint, 1);
+        }
+
+        public override void Dispose() {
+            vsCombine.Dispose();
+            psCombine.Dispose();
+            sampler.Dispose();
         }
 
         public override void QueueRender() {

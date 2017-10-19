@@ -1,6 +1,5 @@
 ﻿using CargoEngine;
 using CargoEngine.Scene;
-using CargoEngine.Shader;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SwapChain = CargoEngine.SwapChain;
@@ -19,7 +18,7 @@ namespace Cargo
 
         private SwapChain swapChain;
 
-        private RenderTask clearRenderTask,lightRenderTask,combineRenderTask;
+        private RenderTask clearRenderTask, lightRenderTask, combineRenderTask;
 
         public DeferredRenderTask(SwapChain swapChain) {
             this.swapChain = swapChain;
@@ -36,13 +35,13 @@ namespace Cargo
         }
 
         private void Init() {
-            vsRender = ShaderLoader.LoadVertexShader(Renderer.Instance, "assets/shader/deferredRender.hlsl", "VSMain");
-            psRender = ShaderLoader.LoadPixelShader(Renderer.Instance, "assets/shader/deferredRender.hlsl", "PSMain");
+            vsRender = Renderer.ShaderLoader.LoadVertexShader("assets/shader/deferredRender.hlsl", "VSMain");
+            psRender = Renderer.ShaderLoader.LoadPixelShader("assets/shader/deferredRender.hlsl", "PSMain");
 
             var rasterizerStateDescription = RasterizerStateDescription.Default();
             rasterizerStateDescription.CullMode = CullMode.Back;
             rasterizerStateDescription.FillMode = FillMode.Solid;
-            rasterizerState = new RasterizerState(Renderer.Instance.Device, rasterizerStateDescription);
+            rasterizerState = new RasterizerState(Renderer.Dev, rasterizerStateDescription);
 
             clearRenderTask = new ClearRenderTask(renderTargets);
             lightRenderTask = new LightRenderTask(renderTargets.RenderTargets[3], renderTargets.RenderTargets[1], renderTargets.RenderTargets[2]);
@@ -78,6 +77,22 @@ namespace Cargo
             if (Scene != null) {
                 Scene.Render(pipeline);
             }
+        }
+
+        public override void Dispose() {
+            renderTargets.Dispose();
+            if (vsRender != null) {
+                vsRender.Dispose();
+            }
+            if (psRender != null) {
+                psRender.Dispose();
+            }
+            if (rasterizerState != null) {
+                rasterizerState.Dispose();
+            }
+            clearRenderTask.Dispose();
+            lightRenderTask.Dispose();
+            combineRenderTask.Dispose();
         }
     }
 }

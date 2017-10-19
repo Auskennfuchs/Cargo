@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Forms;
-using CargoEngine.Exception;
-using CargoEngine.Parameter;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 
@@ -24,6 +21,16 @@ namespace CargoEngine.Shader {
                 return inputLayouts[elements.HashCode];
             }
             return AddInputLayout(elements);
+        }
+
+        public new void Dispose() {
+            base.Dispose();
+            foreach(var il in inputLayouts) {
+                if (il.Value != null) {
+                    il.Value.Dispose();
+                }
+            }
+            inputLayouts.Clear();
         }
 
         private InputLayout AddInputLayout(InputElementList elements) {

@@ -48,9 +48,10 @@ namespace CargoEngine
             Width = width;
             Height = height;
             Format = format;
-            var tex = CreateRenderTargetTexture();
-            View = new RenderTargetView(Renderer.Instance.Device, tex);
-            SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
+            using (var tex = CreateRenderTargetTexture()) {
+                View = new RenderTargetView(Renderer.Instance.Device, tex);
+                SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
+            }
         }
 
         public void Dispose() {
@@ -65,16 +66,17 @@ namespace CargoEngine
             if (SRV != null) {
                 SRV.Dispose();
                 SRV = null;
-            }            
+            }
         }
 
         public void Resize(int newWidth, int newHeight) {
             Clear();
             Width = newWidth;
             Height = newHeight;
-            var tex = CreateRenderTargetTexture();
-            View = new RenderTargetView(Renderer.Instance.Device, tex);
-            SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
+            using (var tex = CreateRenderTargetTexture()) {
+                View = new RenderTargetView(Renderer.Instance.Device, tex);
+                SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
+            }
         }
 
         public void Update(ShaderResourceView srv, RenderTargetView rtv) {
@@ -186,6 +188,15 @@ namespace CargoEngine
         public void Dispose() {
             foreach (var rt in RenderTargets) {
                 rt.Dispose();
+            }
+            RenderTargets.Clear();
+            if (DepthStencilState != null) {
+                DepthStencilState.Dispose();
+                DepthStencilState = null;
+            }
+            if (DepthStencilView != null) {
+                DepthStencilView.Dispose();
+                DepthStencilView = null;
             }
         }
 

@@ -49,8 +49,6 @@ namespace Cargo
 
             timer.Start();
             AddEvents();
-
-            var fl = cam.GetComponent<FreeLookComponent>();
         }
 
         public void MainLoop() {
@@ -71,7 +69,10 @@ namespace Cargo
         }
 
         private void OnClose(object sender, FormClosingEventArgs e) {
+            while (Renderer.Instance.RenderingInProgress) { }
+            cam.RenderTask.Dispose();
             scene.Clear();
+            swapChain.Dispose();
             renderer.Dispose();
         }
 

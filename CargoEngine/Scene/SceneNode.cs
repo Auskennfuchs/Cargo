@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CargoEngine.Scene
@@ -55,7 +56,7 @@ namespace CargoEngine.Scene
         }
     }
 
-    public class SceneNode
+    public class SceneNode : IDisposable
     {
         private List<SceneNode> childs = new List<SceneNode>();
         private ComponentList componentList = new ComponentList();
@@ -150,6 +151,9 @@ namespace CargoEngine.Scene
                 c.Clear();
             });
             childs.Clear();
+            this.Dispose();
         }
+
+        public virtual void Dispose() { }
     }
 }

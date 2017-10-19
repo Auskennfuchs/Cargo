@@ -1,9 +1,10 @@
 ﻿using CargoEngine.Parameter;
 using SharpDX.Direct3D11;
+using System;
 
 namespace CargoEngine.Stages
 {
-    public class OutputMergerStage : Stage<OutputMergerStageState>
+    public class OutputMergerStage : Stage<OutputMergerStageState>, IDisposable
     {
 
         public BlendState BlendState {
@@ -93,6 +94,11 @@ namespace CargoEngine.Stages
                 DesiredState.DepthStencilView.ResetTracking();
                 DesiredState.RenderTarget.ResetTracking();
             }
+        }
+
+        public void Dispose() {
+            DefaultDepthStencilState.Dispose();
+            NoDepthStencilState.Dispose();
         }
     }
 }

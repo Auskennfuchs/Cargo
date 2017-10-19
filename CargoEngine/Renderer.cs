@@ -6,6 +6,7 @@ using SharpDX.Direct3D11;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using CargoEngine.Shader;
 
 namespace CargoEngine
 {
@@ -29,12 +30,23 @@ namespace CargoEngine
             get { return Instance.Device; }
         }
 
-        public Device Device {
+        internal Device Device {
             get; private set;
         }
-        DeviceContext devContext;
 
         public RenderPipeline ImmPipeline {
+            get; private set;
+        }
+
+        public ShaderLoader Shaders {
+            get;
+        }
+
+        public static ShaderLoader ShaderLoader {
+            get { return Instance.Shaders; }
+        }
+
+        public bool RenderingInProgress {
             get; private set;
         }
 
@@ -55,9 +67,8 @@ namespace CargoEngine
             devFlags |= DeviceCreationFlags.Debug;
 #endif
             Device = new Device(SharpDX.Direct3D.DriverType.Hardware, devFlags);
-            devContext = Device.ImmediateContext;
 
-            ImmPipeline = new RenderPipeline(devContext);
+            ImmPipeline = new RenderPipeline(Device.ImmediateContext);
 
             inputLayouts = new Dictionary<int, InputLayout>();
 
@@ -65,15 +76,22 @@ namespace CargoEngine
                 var pipeline = new RenderPipeline(Device);
                 deferredPipelines[i] = pipeline;
             }
+
+            Shaders = new ShaderLoader(this);
         }
 
         public void Dispose() {
+            Shaders.Dispose();
             foreach (var rp in deferredPipelines) {
                 rp.Dispose();
             }
+            deferredPipelines = null;
+            ImmPipeline.Dispose();
+            ImmPipeline = null;
             if (Device != null) {
                 Device.Dispose();
             }
+            Instance = null;
         }
 
         public void QueueTask(RenderTask task) {
@@ -81,6 +99,7 @@ namespace CargoEngine
         }
 
         public void ExecuteTasks() {
+            RenderingInProgress = true;
             var taskCount = taskQueue.Count;
             List<Task> tasks = new List<Task>();
             for (int i = 0, count = 0; i < taskCount; i += count) {
@@ -89,7 +108,7 @@ namespace CargoEngine
                 for (count = 0; j < NUM_THREADS && i + j < taskCount; j++) {
                     count++;
                     RenderTask task;
-                    if(!taskQueue.TryDequeue(out task)) {
+                    if (!taskQueue.TryDequeue(out task)) {
                         throw new SystemException("error dequeueing rendertask");
                     }
                     var payload = new TaskPayload {
@@ -107,6 +126,7 @@ namespace CargoEngine
                     deferredPipelines[k].ReleaseCommandList();
                 }
             }
+            RenderingInProgress = false;
         }
 
         private void RunTask(TaskPayload payload) {
@@ -125,8 +145,9 @@ namespace CargoEngine
                 AddressV = texMode,
                 AddressW = texMode,
                 Filter = filter,
-                MaximumAnisotropy = 16,
+                MaximumAnisotropy = Math.Max(1, aniso),
             };
+            var hash = samplerStateDescription.GetHashCode();
             return new SamplerState(Renderer.Instance.Device, samplerStateDescription);
         }
     }

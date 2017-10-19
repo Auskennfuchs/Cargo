@@ -51,6 +51,13 @@ namespace CargoEngine.Texture
             pixels = new byte[width * height * format.SizeOfInBytes()];
         }
 
+        public new void Dispose() {
+            base.Dispose();
+            if (dxTexture != null) {
+                dxTexture.Dispose();
+            }
+        }
+
         public void SetPixels(byte[] data) {
             if (data.Length <= pixels.Length) {
                 data.CopyTo(pixels, 0);

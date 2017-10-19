@@ -19,17 +19,15 @@ namespace Cargo {
         public SimpleRenderTask(RenderTargetGroup rt) {
             renderTarget = rt;
 
-            vShader = ShaderLoader.LoadVertexShader(Renderer.Instance, "assets/shader/simple.hlsl", "VSMain");
-            pShader = ShaderLoader.LoadPixelShader(Renderer.Instance, "assets/shader/simple.hlsl", "PSMain");
+            vShader = Renderer.Instance.Shaders.LoadVertexShader("assets/shader/simple.hlsl", "VSMain");
+            pShader = Renderer.Instance.Shaders.LoadPixelShader("assets/shader/simple.hlsl", "PSMain");
 
             var rasterizerStateDescription = RasterizerStateDescription.Default();
             rasterizerStateDescription.CullMode = CullMode.Back;
-           rasterizerState = new RasterizerState(Renderer.Instance.Device, rasterizerStateDescription);
+           rasterizerState = new RasterizerState(Renderer.Dev, rasterizerStateDescription);
         }
 
         ~SimpleRenderTask() {
-            vShader.Dispose();
-            pShader.Dispose();
         }
 
         public override void Render(RenderPipeline pipeline) {
@@ -51,6 +49,11 @@ namespace Cargo {
 
         public override void QueueRender() {
             Renderer.Instance.QueueTask(this);
+        }
+
+        public override void Dispose() {
+            vShader.Dispose();
+            pShader.Dispose();
         }
     }
 }

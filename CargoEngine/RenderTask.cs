@@ -1,7 +1,8 @@
 ﻿using SharpDX;
+using System;
 
 namespace CargoEngine {
-    public abstract class RenderTask {
+    public abstract class RenderTask : IDisposable{
 
         public Matrix ViewMatrix {
             get; set;
@@ -20,5 +21,7 @@ namespace CargoEngine {
 
         public abstract void Render(RenderPipeline pipeline);
         public abstract void QueueRender();
+
+        public abstract void Dispose();
     }
 }

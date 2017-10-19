@@ -17,8 +17,13 @@ namespace Cargo
 
         public ClearRenderTask(RenderTargetGroup renderTargets) {
             this.renderTargets = renderTargets;
-            vsClear = ShaderLoader.LoadVertexShader(Renderer.Instance, "assets/shader/deferredCleanup.hlsl", "VSMain");
-            psClear = ShaderLoader.LoadPixelShader(Renderer.Instance, "assets/shader/deferredCleanup.hlsl", "PSMain");
+            vsClear = Renderer.ShaderLoader.LoadVertexShader("assets/shader/deferredCleanup.hlsl", "VSMain");
+            psClear = Renderer.ShaderLoader.LoadPixelShader("assets/shader/deferredCleanup.hlsl", "PSMain");
+        }
+
+        public override void Dispose() {
+            vsClear.Dispose();
+            psClear.Dispose();
         }
 
         public override void QueueRender() {

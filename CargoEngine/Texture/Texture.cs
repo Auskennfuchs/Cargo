@@ -21,7 +21,7 @@ namespace CargoEngine.Texture
         CubeArray
     }
 
-    public abstract class Texture
+    public abstract class Texture : IDisposable
     {
         public Dimension Dimension {
             get; private set;
@@ -48,6 +48,13 @@ namespace CargoEngine.Texture
             Width = width;
             Height = height;
             Format = format;
+        }
+
+        public void Dispose() {
+            if (SRV != null) {
+                SRV.Dispose();
+                SRV = null;
+            }
         }
     }
 }

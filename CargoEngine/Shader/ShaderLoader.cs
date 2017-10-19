@@ -11,29 +11,35 @@ using SharpDX.Direct3D11;
 using CargoEngine.Parameter;
 
 namespace CargoEngine.Shader {
-    public class ShaderLoader {
-        private static Dictionary<string, VertexShader> vertexShaders = new Dictionary<string, VertexShader>();
-        private static Dictionary<string, PixelShader> pixelShaders = new Dictionary<string, PixelShader>();
+    public class ShaderLoader : IDisposable {
+        private Dictionary<string, VertexShader> vertexShaders = new Dictionary<string, VertexShader>();
+        private Dictionary<string, PixelShader> pixelShaders = new Dictionary<string, PixelShader>();
 
-        public static VertexShader LoadVertexShader(Renderer renderer, string file, string entryfunction) {
+        private Renderer renderer;
+
+        internal ShaderLoader(Renderer renderer) {
+            this.renderer = renderer;
+        }
+
+        public VertexShader LoadVertexShader(string file, string entryfunction) {
             if(vertexShaders.ContainsKey(file)) {
                 return vertexShaders[file];
             }
-            var shader = LoadShader<VertexShader,VShader>(renderer, file, entryfunction, "vs_5_0");
+            var shader = LoadShader<VertexShader,VShader>(file, entryfunction, "vs_5_0");
             vertexShaders.Add(file, shader);
             return shader;
         }
 
-        public static PixelShader LoadPixelShader(Renderer renderer, string file, string entryfunction) {
+        public PixelShader LoadPixelShader(string file, string entryfunction) {
             if (pixelShaders.ContainsKey(file)) {
                 return pixelShaders[file];
             }
-            var shader = LoadShader<PixelShader,PShader>(renderer, file, entryfunction, "ps_5_0");
+            var shader = LoadShader<PixelShader,PShader>(file, entryfunction, "ps_5_0");
             pixelShaders.Add(file, shader);
             return shader;
         }
 
-        private static T LoadShader<T,U>(Renderer renderer, string file, string entryfunction, string profile) where T: ShaderBase<U> where U: DeviceChild {
+        private T LoadShader<T,U>(string file, string entryfunction, string profile) where T: ShaderBase<U> where U: DeviceChild {
             try {
                 ShaderFlags sFlags = ShaderFlags.PackMatrixRowMajor;
 #if DEBUG
@@ -44,7 +50,7 @@ namespace CargoEngine.Shader {
                         MessageBox.Show(bytecode.Message);
                         return null;
                     }
-                    return ReflectBytecode<T,U>(renderer, bytecode);
+                    return ReflectBytecode<T,U>(bytecode);
                 }
             }
             catch (System.Exception exc) {
@@ -52,17 +58,19 @@ namespace CargoEngine.Shader {
             }
         }
 
-        private static T ReflectBytecode<T,U>(Renderer renderer, ShaderBytecode bytecode) where T: ShaderBase<U> where U: DeviceChild {
+        private T ReflectBytecode<T,U>(ShaderBytecode bytecode) where T: ShaderBase<U> where U: DeviceChild {
             var inputSignature = ShaderSignature.GetInputSignature(bytecode);
-            var shaderPtr = Activator.CreateInstance(typeof(U),new object[] { renderer.Device, bytecode.Data, null }) as U;
+            var shaderPtr = Activator.CreateInstance(typeof(U), new object[] { renderer.Device, bytecode.Data, null }) as U;
             using (var reflection = new ShaderReflection(bytecode)) {
-                var (textures,samplers) = ReflectResources(reflection);
-                var constantBuffers = ReflectConstantBuffers(renderer, reflection);
-                return Activator.CreateInstance(typeof(T), new object[] { inputSignature, shaderPtr, constantBuffers, textures, samplers }) as T;
+                var (textures, samplers) = ReflectResources(reflection);
+                var constantBuffers = ReflectConstantBuffers(reflection);
+                var shader = Activator.CreateInstance(typeof(T), new object[] { inputSignature, shaderPtr, constantBuffers, textures, samplers }) as T;
+                shaderPtr = null;
+                return shader;
             }
         }
 
-        private static (Dictionary<int,string>, Dictionary<int, string>) ReflectResources(ShaderReflection reflection) {
+        private (Dictionary<int,string>, Dictionary<int, string>) ReflectResources(ShaderReflection reflection) {
             var textures = new Dictionary<int, string>();
             var samplers = new Dictionary<int, string>();
             for (var resIndex = 0; resIndex < reflection.Description.BoundResources; resIndex++) {
@@ -79,7 +87,7 @@ namespace CargoEngine.Shader {
             return (textures,samplers);
         }
 
-        private static List<ConstantBuffer> ReflectConstantBuffers(Renderer renderer, ShaderReflection reflection) {
+        private List<ConstantBuffer> ReflectConstantBuffers(ShaderReflection reflection) {
             var constantBuffers = new List<ConstantBuffer>();
             for (int cBufferIndex = 0; cBufferIndex < reflection.Description.ConstantBuffers; cBufferIndex++) {
                 CBuffer cb = reflection.GetConstantBuffer(cBufferIndex);
@@ -110,6 +118,17 @@ namespace CargoEngine.Shader {
                 constantBuffers.Add(constantBuffer);
             }
             return constantBuffers;
+        }
+
+        public void Dispose() {
+            foreach(var vs in vertexShaders) {
+                vs.Value.Dispose();
+            }
+            vertexShaders.Clear();
+            foreach (var ps in pixelShaders) {
+                ps.Value.Dispose();
+            }
+            pixelShaders.Clear();
         }
     }
 }

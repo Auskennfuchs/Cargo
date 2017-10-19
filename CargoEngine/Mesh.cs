@@ -18,7 +18,7 @@ namespace CargoEngine
         PointList = PrimitiveTopology.PointList,
     }
 
-    public class Mesh
+    public class Mesh : IDisposable
     {
         #region Properties
 
@@ -224,6 +224,10 @@ namespace CargoEngine
 
             var bufferBinding = new VertexBufferBinding(buf, stride, 0);
             buffers.Add(bufferBinding);
+        }
+
+        public void Dispose() {
+            Clear();
         }
     }
 }

@@ -2,9 +2,10 @@
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
+using System;
 
 namespace CargoEngine.Shader {
-    public abstract class ShaderBase<ShaderClass> where ShaderClass : DeviceChild {
+    public abstract class ShaderBase<ShaderClass>: IDisposable where ShaderClass : DeviceChild {
         private static int ShaderIdCounter = 1;
 
         public List<ConstantBuffer> ConstantBuffers {
@@ -50,6 +51,10 @@ namespace CargoEngine.Shader {
             }
             if (ConstantBuffers != null) {
                 ConstantBuffers.ForEach(buf => buf.Dispose());
+                ConstantBuffers.Clear();
+            }
+            if (ShaderPtr != null) {
+                ShaderPtr.Dispose();
             }
         }
 

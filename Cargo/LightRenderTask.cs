@@ -21,12 +21,20 @@ namespace Cargo
             this.lightTarget = lightTarget;
             this.normalTarget = normalTarget;
             this.positionTarget = positionTarget;
-            vsDirectional = ShaderLoader.LoadVertexShader(Renderer.Instance, "assets/shader/directionalLight.hlsl", "VSMain");
-            psDirectional = ShaderLoader.LoadPixelShader(Renderer.Instance, "assets/shader/directionalLight.hlsl", "PSMain");
+            vsDirectional = Renderer.Instance.Shaders.LoadVertexShader("assets/shader/directionalLight.hlsl", "VSMain");
+            psDirectional = Renderer.Instance.Shaders.LoadPixelShader("assets/shader/directionalLight.hlsl", "PSMain");
 
             sampler = Renderer.Instance.CreateSamplerState(TextureAddressMode.Wrap, Filter.Anisotropic, 16);
         }
 
+        public override void Dispose() {
+            sampler.Dispose();
+            vsDirectional.Dispose();
+            psDirectional.Dispose();
+            lightTarget = null;
+            normalTarget = null;
+            positionTarget = null;
+        }
 
         public override void QueueRender() {
         }

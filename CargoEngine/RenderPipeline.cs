@@ -60,6 +60,7 @@ namespace CargoEngine
         }
 
         public void Dispose() {
+            OutputMerger.Dispose();
             if (DevContext != null) {
                 DevContext.Dispose();
                 DevContext = null;

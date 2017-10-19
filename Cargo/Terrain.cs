@@ -29,6 +29,15 @@ namespace Cargo
 
         }
 
+        ~Terrain() {
+            if (texture != null) {
+                texture.Dispose();
+            }
+            if (sampler != null) {
+                sampler.Dispose();
+            }
+        }
+
         private float[,] GenerateTerrain() {
             var points = new float[MAP_SIZE, MAP_SIZE];
             var quality = 1.0f;
