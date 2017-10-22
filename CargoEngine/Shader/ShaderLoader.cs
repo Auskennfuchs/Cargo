@@ -96,9 +96,10 @@ namespace CargoEngine.Shader
         private List<ConstantBuffer> ReflectConstantBuffers(ShaderReflection reflection) {
             var constantBuffers = new List<ConstantBuffer>();
             for (int cBufferIndex = 0; cBufferIndex < reflection.Description.ConstantBuffers; cBufferIndex++) {
-                CBuffer cb = reflection.GetConstantBuffer(cBufferIndex);
-                Buffer buf = new Buffer(renderer.Device, cb.Description.Size, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, sizeof(float));
-                ConstantBuffer constantBuffer = new ConstantBuffer(buf);
+                var cb = reflection.GetConstantBuffer(cBufferIndex);
+                var bindingDesc = reflection.GetResourceBindingDescription(cb.Description.Name);
+                var buf = new Buffer(renderer.Device, cb.Description.Size, ResourceUsage.Dynamic, BindFlags.ConstantBuffer, CpuAccessFlags.Write, ResourceOptionFlags.None, sizeof(float));
+                var constantBuffer = new ConstantBuffer(buf,bindingDesc.BindPoint);
                 for (int i = 0; i < cb.Description.VariableCount; i++) {
                     var refVar = cb.GetVariable(i);
                     var type = refVar.GetVariableType();

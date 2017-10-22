@@ -8,7 +8,7 @@ using Resource = SharpDX.Direct3D11.Resource;
 
 namespace CargoEngine
 {
-    public class SwapChain : Event.EventManager, IDisposable
+    public class SwapChain :  IDisposable
     {
         private DXSwapChain swapChain;
 
@@ -29,7 +29,7 @@ namespace CargoEngine
 
         private bool isResizing = false;
 
-        public event EventHandler<Event.SResizeEvent> Resize;
+        public event EventHandler<Event.SResizeEvent> OnResize;
 
         public SwapChain(Form form, Renderer renderer)
             : this(form, renderer, 0, 0) { }
@@ -121,19 +121,18 @@ namespace CargoEngine
         }
 
         private void DoResize(int width, int height) {
+            while (Renderer.Instance.RenderingInProgress) { }
             var rt = RenderTarget.RenderTargets[0];
             rt.Clear();
             swapChain.ResizeBuffers(1, width, height, Format.Unknown, SwapChainFlags.AllowModeSwitch);
             using (var tex = Resource.FromSwapChain<Texture2D>(swapChain, 0)) {
                 rt.Update(null, new RenderTargetView(Renderer.Instance.Device, tex));
+                rt.SendResizeEvent();
             }
             Viewport = new Viewport(0, 0, width, height);
-            Resize?.Invoke(this, new Event.SResizeEvent {
+            OnResize?.Invoke(this, new Event.SResizeEvent {
                 Size = new System.Drawing.Size(width, height)
             });
-            ProcessEvent(new Event.EventResize(new Event.SResizeEvent {
-                Size = new System.Drawing.Size(width, height)
-            }));
         }
     }
 }

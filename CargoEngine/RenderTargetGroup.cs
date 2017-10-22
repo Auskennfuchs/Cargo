@@ -8,33 +8,26 @@ using System.Linq;
 namespace CargoEngine
 {
 
-    public class RenderTarget : IDisposable
+    public class RenderTarget : Texture.Texture
     {
-        public ShaderResourceView SRV {
-            get; private set;
-        }
-
         public RenderTargetView View {
             get; private set;
         }
 
-        public int Width {
-            get; private set;
-        }
-
-        public int Height {
-            get; private set;
-        }
-
-        public Format Format {
-            get; private set;
-        }
+        public event EventHandler<Event.SResizeEvent> OnResize;
 
         public RenderTarget(ShaderResourceView srv, RenderTargetView rtv) {
+            using (var tex = rtv.ResourceAs<Texture2D>()) {
+                Dimension = Texture.Dimension.Texture2D;
+                Width = tex.Description.Width;
+                Height = tex.Description.Height;
+                Format = tex.Description.Format;
+            }
             Update(srv, rtv);
         }
 
         public RenderTarget(Texture2D tex) {
+            Dimension = Texture.Dimension.Texture2D;
             Width = tex.Description.Width;
             Height = tex.Description.Height;
             Format = tex.Description.Format;
@@ -45,6 +38,7 @@ namespace CargoEngine
         }
 
         public RenderTarget(int width, int height, Format format) {
+            Dimension = Texture.Dimension.Texture2D;
             Width = width;
             Height = height;
             Format = format;
@@ -54,7 +48,8 @@ namespace CargoEngine
             }
         }
 
-        public void Dispose() {
+        public override void Dispose() {
+            base.Dispose();
             Clear();
         }
 
@@ -77,6 +72,12 @@ namespace CargoEngine
                 View = new RenderTargetView(Renderer.Instance.Device, tex);
                 SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
             }
+        }
+
+        public void SendResizeEvent() {
+            OnResize?.Invoke(this, new Event.SResizeEvent {
+                Size = new System.Drawing.Size(Width, Height)
+            });
         }
 
         public void Update(ShaderResourceView srv, RenderTargetView rtv) {
@@ -142,13 +143,13 @@ namespace CargoEngine
         }
 
         public RenderTargetGroup(SwapChain swapChain, Format firstFormat) : this(swapChain.Viewport.Width, swapChain.Viewport.Height, firstFormat) {
-            swapChain.Resize += (o, e) => {
+            swapChain.OnResize += (o, e) => {
                 Resize(e.Size.Width, e.Size.Height);
             };
         }
 
         public RenderTargetGroup(SwapChain swapChain, Texture2D tex) : this(tex) {
-            swapChain.Resize += (o, e) => {
+            swapChain.OnResize += (o, e) => {
                 Resize(e.Size.Width, e.Size.Height);
             };
         }

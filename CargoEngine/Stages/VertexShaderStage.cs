@@ -18,7 +18,9 @@ namespace CargoEngine.Stages {
             if (DesiredState.Shader.State != null) {
                 var vs = (VertexShader)DesiredState.Shader.State;
                 dc.VertexShader.Set(vs.ShaderPtr);
-                DesiredState.ConstantBuffer.SetStates(0,vs.ConstantBuffers);
+                foreach (var cb in vs.ConstantBuffers) {
+                    DesiredState.ConstantBuffer.SetState(cb.BindPoint, cb);
+                }
             } else {
                 dc.VertexShader.Set(null);
             }

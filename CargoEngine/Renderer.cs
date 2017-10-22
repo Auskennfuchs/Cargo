@@ -20,7 +20,7 @@ namespace CargoEngine
             public int pipelineNumber;
         }
 
-        private const int NUM_THREADS = 4;
+        private const int NUM_THREADS = 1;
 
         public static Renderer Instance {
             get; private set;
@@ -84,14 +84,14 @@ namespace CargoEngine
 
         public void Dispose() {
             Shaders.Dispose();
-            foreach(var sampler in samplerStates) {
+            foreach (var sampler in samplerStates) {
                 sampler.Value.Dispose();
             }
             samplerStates.Clear();
             foreach (var rp in deferredPipelines) {
                 rp.Dispose();
             }
-            deferredPipelines = null;     
+            deferredPipelines = null;
             ImmPipeline.Dispose();
             ImmPipeline = null;
             if (Device != null) {
@@ -127,9 +127,11 @@ namespace CargoEngine
                 }
                 Task.WaitAll(tasks.ToArray());
                 for (var k = 0; k < j; k++) {
-                    deferredPipelines[k].FinishCommandList();
-                    ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
-                    deferredPipelines[k].ReleaseCommandList();
+                    if (!tasks[k].IsFaulted) {
+                        deferredPipelines[k].FinishCommandList();
+                        ImmPipeline.ExecuteCommandList(deferredPipelines[k].CommandList);
+                        deferredPipelines[k].ReleaseCommandList();
+                    }
                 }
             }
             RenderingInProgress = false;
@@ -145,12 +147,16 @@ namespace CargoEngine
             }
         }
 
-        public SamplerState CreateSamplerState(TextureAddressMode texMode, Filter filter, int aniso) {
+        public SamplerState CreateSamplerState(TextureAddressMode texMode, Filter filter,
+            Comparison comparisonFunction = Comparison.Never, int aniso = 1, float minLod = 0.0f, float maxLod = float.MaxValue) {
             var samplerStateDescription = new SamplerStateDescription {
                 AddressU = texMode,
                 AddressV = texMode,
                 AddressW = texMode,
                 Filter = filter,
+                ComparisonFunction = comparisonFunction,
+                MinimumLod = minLod,
+                MaximumLod = maxLod,
                 MaximumAnisotropy = Math.Max(1, aniso),
             };
             var hash = samplerStateDescription.GetHashCode();

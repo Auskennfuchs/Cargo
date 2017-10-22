@@ -24,23 +24,26 @@ namespace CargoEngine.Texture
     public abstract class Texture : IDisposable
     {
         public Dimension Dimension {
-            get; private set;
+            get; protected set;
         }
 
         public int Width {
-            get; private set;
+            get; protected set;
         }
 
         public int Height {
-            get; private set;
+            get; protected set;
         }
 
         public Format Format {
-            get; private set;
+            get; protected set;
         }
 
         public ShaderResourceView SRV {
             get; protected set;
+        }
+
+        public Texture() {
         }
 
         public Texture(Dimension dimension, int width, int height, Format format) {
@@ -50,7 +53,7 @@ namespace CargoEngine.Texture
             Format = format;
         }
 
-        public void Dispose() {
+        public virtual void Dispose() {
             if (SRV != null) {
                 SRV.Dispose();
                 SRV = null;

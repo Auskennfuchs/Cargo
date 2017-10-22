@@ -79,6 +79,15 @@ namespace CargoEngine.Parameter
             return (SamplerState)GetParam(name, RenderParameterType.SamplerState);
         }
 
+        public void SetParameter(string name, Texture.Texture texture) {
+            if (!SetParam(name, texture, RenderParameterType.Texture)) {
+                parameters.Add(name, new TextureParameter(texture));
+            }
+        }
+        public Texture.Texture GetTextureParameter(string name) {
+            return (Texture.Texture)GetParam(name, RenderParameterType.Texture);
+        }
+
         protected bool SetParam(string name, object obj, RenderParameterType type) {
             if (parameters.ContainsKey(name)) {
                 var param = parameters[name];
@@ -150,6 +159,13 @@ namespace CargoEngine.Parameter
                         break;
                     case RenderParameterType.SamplerState:
                         SetParameter(param.Key, (SamplerState)param.Value.Value);
+                        break;
+                    case RenderParameterType.Texture:
+                        if (param.Value != null && param.Value.Value != null) {
+                            SetParameter(param.Key, ((Texture.Texture)param.Value.Value).SRV);
+                        } else {
+                            SetParameter(param.Key, (ShaderResourceView)null);
+                        }
                         break;
                 }
             }

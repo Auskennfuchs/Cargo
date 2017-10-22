@@ -18,7 +18,9 @@ namespace CargoEngine.Stages {
             if (DesiredState.Shader.State != null) {
                 var ps = (PixelShader)DesiredState.Shader.State;
                 dc.PixelShader.Set(ps.ShaderPtr);
-                DesiredState.ConstantBuffer.SetStates(0, ps.ConstantBuffers);
+                foreach (var cb in ps.ConstantBuffers) {
+                    DesiredState.ConstantBuffer.SetState(cb.BindPoint, cb);
+                }
             } else {
                 dc.PixelShader.Set(null);
             }

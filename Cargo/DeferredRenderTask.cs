@@ -20,6 +20,20 @@ namespace Cargo
 
         private RenderTask clearRenderTask, lightRenderTask, combineRenderTask, fxaaRenderTask;
 
+        private bool fxaa;
+        public bool FXAA {
+            get {
+                return fxaa;
+            } set {
+                fxaa = value;
+                if (fxaa) {
+                    ((CombineRenderTask)combineRenderTask).Destination = renderTargets.RenderTargets[4];                    
+                } else {
+                    ((CombineRenderTask)combineRenderTask).Destination = swapChain.RenderTarget.RenderTargets[0];
+                }
+            }
+        }
+
         public DeferredRenderTask(SwapChain swapChain) {
             this.swapChain = swapChain;
             renderTargets = new RenderTargetGroup(swapChain, Format.R8G8B8A8_UNorm); // Albedo
@@ -29,10 +43,12 @@ namespace Cargo
             renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Light
             renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Combine
 
-            swapChain.Resize += (o, e) => {
+            swapChain.OnResize += (o, e) => {
                 renderTargets.Resize(e.Size.Width, e.Size.Height);
             };
             Init();
+
+            FXAA = true;
         }
 
         private void Init() {
@@ -56,7 +72,9 @@ namespace Cargo
             Renderer.Instance.QueueTask(this);
             Renderer.Instance.QueueTask(lightRenderTask);
             Renderer.Instance.QueueTask(combineRenderTask);
-            Renderer.Instance.QueueTask(fxaaRenderTask);
+            if (FXAA) {
+                Renderer.Instance.QueueTask(fxaaRenderTask);
+            }
         }
 
         public override void Render(RenderPipeline pipeline) {

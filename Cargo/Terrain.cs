@@ -18,7 +18,7 @@ namespace Cargo
             var heightMap = GenerateTerrain();
 
             texture = TextureLoader.FromFile("assets/textures/textureGrid_1k.jpg");
-            sampler = Renderer.Instance.CreateSamplerState(TextureAddressMode.Wrap, Filter.Anisotropic, 16);
+            sampler = Renderer.Instance.CreateSamplerState(TextureAddressMode.Wrap, Filter.Anisotropic, Comparison.Never, 16);
 
             for (uint z = 0; z < MAP_SIZE / CHUNK_SIZE; z++) {
                 for (uint x = 0; x < MAP_SIZE / CHUNK_SIZE; x++) {

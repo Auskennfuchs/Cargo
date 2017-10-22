@@ -22,10 +22,15 @@ namespace CargoEngine
             get; private set;
         }
 
+        public int BindPoint {
+            get; private set;
+        }
+
         private DataStream dataStream;
 
-        public ConstantBuffer(Buffer buf) {
+        public ConstantBuffer(Buffer buf, int bindpoint) {
             Buffer = buf;
+            BindPoint = bindpoint;
             if (buf != null) {
                 bufferSize = buf.Description.SizeInBytes;
                 cpuBuffer = new byte[bufferSize];

@@ -6,6 +6,7 @@
         Vector4,
         SRV,
         SamplerState,
+        Texture,
         NumElements
     }
 
