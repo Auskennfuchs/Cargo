@@ -20,7 +20,7 @@ namespace CargoEngine
             public int pipelineNumber;
         }
 
-        private const int NUM_THREADS = 1;
+        private const int NUM_THREADS = 4;
 
         public static Renderer Instance {
             get; private set;
