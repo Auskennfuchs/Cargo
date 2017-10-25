@@ -191,14 +191,8 @@ namespace CargoEngine
                 rt.Dispose();
             }
             RenderTargets.Clear();
-            if (DepthStencilState != null) {
-                DepthStencilState.Dispose();
-                DepthStencilState = null;
-            }
-            if (DepthStencilView != null) {
-                DepthStencilView.Dispose();
-                DepthStencilView = null;
-            }
+            DepthStencilState?.Dispose();
+            DepthStencilView?.Dispose();
         }
 
         public void Deactivate(RenderPipeline pipeline) {

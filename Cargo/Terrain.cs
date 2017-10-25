@@ -8,8 +8,8 @@ namespace Cargo
 {
     class Terrain : SceneNode
     {
-        private const uint MAP_SIZE = 256;
-        private const uint CHUNK_SIZE = 64;
+        private const uint MAP_SIZE = 512;
+        private const uint CHUNK_SIZE = 128;
 
         private CargoEngine.Texture.Texture2D texture;
         private SamplerState sampler;

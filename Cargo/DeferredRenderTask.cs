@@ -2,6 +2,7 @@
 using CargoEngine.Scene;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using System;
 using SwapChain = CargoEngine.SwapChain;
 
 namespace Cargo
@@ -12,7 +13,7 @@ namespace Cargo
         private CargoEngine.Shader.VertexShader vsRender;
         private CargoEngine.Shader.PixelShader psRender;
 
-        private RenderTargetGroup renderTargets;
+        public RenderTargetGroup RenderTargets;
 
         private RasterizerState rasterizerState;
 
@@ -27,7 +28,7 @@ namespace Cargo
             } set {
                 fxaa = value;
                 if (fxaa) {
-                    ((CombineRenderTask)combineRenderTask).Destination = renderTargets.RenderTargets[4];                    
+                    ((CombineRenderTask)combineRenderTask).Destination = RenderTargets.RenderTargets[4];                    
                 } else {
                     ((CombineRenderTask)combineRenderTask).Destination = swapChain.RenderTarget.RenderTargets[0];
                 }
@@ -36,15 +37,15 @@ namespace Cargo
 
         public DeferredRenderTask(SwapChain swapChain) {
             this.swapChain = swapChain;
-            renderTargets = new RenderTargetGroup(swapChain, Format.R8G8B8A8_UNorm); // Albedo
-            renderTargets.AddDepthStencil();
-            renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Normals
-            renderTargets.AddRenderTarget(Format.R16G16B16A16_Float); //Position
-            renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Light
-            renderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Combine
+            RenderTargets = new RenderTargetGroup(swapChain, Format.R8G8B8A8_UNorm); // Albedo
+            RenderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Normals
+            RenderTargets.AddRenderTarget(Format.R16G16B16A16_Float); //Position
+            RenderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Light
+            RenderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Combine
+            RenderTargets.AddDepthStencil();
 
             swapChain.OnResize += (o, e) => {
-                renderTargets.Resize(e.Size.Width, e.Size.Height);
+                RenderTargets.Resize(e.Size.Width, e.Size.Height);
             };
             Init();
 
@@ -60,20 +61,20 @@ namespace Cargo
             rasterizerStateDescription.FillMode = FillMode.Solid;
             rasterizerState = new RasterizerState(Renderer.Dev, rasterizerStateDescription);
 
-            clearRenderTask = new ClearRenderTask(renderTargets);
-            lightRenderTask = new LightRenderTask(renderTargets.RenderTargets[3], renderTargets.RenderTargets[1], renderTargets.RenderTargets[2]);
-            combineRenderTask = new CombineRenderTask(renderTargets.RenderTargets[4], renderTargets.RenderTargets[0], renderTargets.RenderTargets[3]);
-            fxaaRenderTask = new PostProcessFXAA(swapChain.RenderTarget.RenderTargets[0],renderTargets.RenderTargets[4]);
+            clearRenderTask = new ClearRenderTask(RenderTargets);
+            lightRenderTask = new LightRenderTask(RenderTargets.RenderTargets[3], RenderTargets.RenderTargets[1], RenderTargets.RenderTargets[2]);
+            combineRenderTask = new CombineRenderTask(RenderTargets.RenderTargets[4], RenderTargets.RenderTargets[0], RenderTargets.RenderTargets[3]);
+            fxaaRenderTask = new PostProcessFXAA(swapChain.RenderTarget.RenderTargets[0],RenderTargets.RenderTargets[4]);
         }
 
 
         public override void QueueRender() {
-            Renderer.Instance.QueueTask(clearRenderTask);
+            clearRenderTask.QueueRender();
             Renderer.Instance.QueueTask(this);
-            Renderer.Instance.QueueTask(lightRenderTask);
-            Renderer.Instance.QueueTask(combineRenderTask);
+            lightRenderTask.QueueRender();
+            combineRenderTask.QueueRender();
             if (FXAA) {
-                Renderer.Instance.QueueTask(fxaaRenderTask);
+                fxaaRenderTask.QueueRender();
             }
         }
 
@@ -82,12 +83,12 @@ namespace Cargo
         }
 
         private void RenderScene(RenderPipeline pipeline) {
-            pipeline.OutputMerger.RenderTarget.SetStates(0, renderTargets.GetRenderTargetViews());
-            pipeline.OutputMerger.DepthStencil = renderTargets.DepthStencilView;
+            pipeline.OutputMerger.RenderTarget.SetStates(0, RenderTargets.GetRenderTargetViews());
+            pipeline.OutputMerger.DepthStencil = RenderTargets.DepthStencilView;
             pipeline.OutputMerger.DepthStencilState = pipeline.OutputMerger.DefaultDepthStencilState;            
             pipeline.VertexShader.Shader = vsRender;
             pipeline.PixelShader.Shader = psRender;
-            pipeline.Rasterizer.Viewport = renderTargets.Viewport;
+            pipeline.Rasterizer.Viewport = RenderTargets.Viewport;
             pipeline.Rasterizer.RasterizerState = rasterizerState;
             pipeline.ParameterManager.SetViewMatrix(ViewMatrix);
             pipeline.ParameterManager.SetProjectionMatrix(ProjectionMatrix);
@@ -101,10 +102,8 @@ namespace Cargo
         }
 
         public override void Dispose() {
-            renderTargets.Dispose();
-            if (rasterizerState != null) {
-                rasterizerState.Dispose();
-            }
+            RenderTargets.Dispose();
+            rasterizerState?.Dispose();
         }
     }
 }

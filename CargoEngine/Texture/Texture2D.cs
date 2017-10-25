@@ -51,6 +51,12 @@ namespace CargoEngine.Texture
             pixels = new byte[width * height * format.SizeOfInBytes()];
         }
 
+        public Texture2D(SharpDX.Direct3D11.Texture2D tex, ShaderResourceView srv) {
+            dxTexture = tex;
+            SRV = srv;
+            MipMapCount = dxTexture.Description.MipLevels;
+        }
+
         public new void Dispose() {
             base.Dispose();
             if (dxTexture != null) {

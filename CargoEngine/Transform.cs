@@ -128,5 +128,12 @@ namespace CargoEngine {
         private Vector3 GetRotationVector(Vector3 vecin) {
             return Vector3.Transform(vecin, Quaternion.Conjugate(Rotation));
         }
+
+        public void SetLookAt(Vector3 eye,Vector3 target, Vector3 up) {
+            LocalMatrix = Matrix.LookAtLH(eye, target, up);
+            Position = eye;
+            Rotation = Quaternion.RotationMatrix(LocalMatrix);
+            Changed = true;
+        }
     }
 }

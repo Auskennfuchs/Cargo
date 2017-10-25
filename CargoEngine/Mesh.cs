@@ -16,6 +16,7 @@ namespace CargoEngine
         TriangleList = PrimitiveTopology.TriangleList,
         TriangleStrip = PrimitiveTopology.TriangleStrip,
         PointList = PrimitiveTopology.PointList,
+        LineList = PrimitiveTopology.LineList,
     }
 
     public class Mesh : IDisposable

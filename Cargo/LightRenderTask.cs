@@ -31,6 +31,7 @@ namespace Cargo
         }
 
         public override void QueueRender() {
+            Renderer.Instance.QueueTask(this);
         }
 
         public override void Render(RenderPipeline pipeline) {

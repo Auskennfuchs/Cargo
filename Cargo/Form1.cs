@@ -15,7 +15,7 @@ namespace Cargo
 
         private Scene scene;
 
-        private Camera cam;
+        private Camera cam, shadowCam;
 
         private CargoEngine.Timer timer = new CargoEngine.Timer();
 
@@ -23,6 +23,8 @@ namespace Cargo
 
         private int fpsCount;
         private float fpsTimeCount;
+
+        private RenderTask shadowProjectionRenderTask;
 
         public Form1() {
             InitializeComponent();
@@ -33,7 +35,7 @@ namespace Cargo
 
             var terrain = new Terrain();
             scene.RootNode.AddChild(terrain);
-            terrain.Transform.Scale = new Vector3(3.0f, 1.0f, 3.0f);
+//            terrain.Transform.Scale = new Vector3(3.0f, 3.0f, 3.0f);
 
             cam = new Camera();
             cam.Transform.Position = new Vector3(0, 50.0f, 0.0f);
@@ -46,6 +48,22 @@ namespace Cargo
             });
             scene.RootNode.AddChild(cam);
 
+            shadowCam = new Camera();
+            shadowCam.Transform.SetLookAt(new Vector3(100.0f, 100.0f, 256.0f),new Vector3(256.0f,0.0f,256.0f), Vector3.Up);
+            shadowCam.SetProjection(0.1f, 200.0f, 1.0f, (float)Math.PI / 2.0f);
+            shadowCam.RenderTask = new ShadowMapRenderTask();
+            shadowCam.Scene = scene;
+            shadowCam.AddComponent(new LightVisualizer(shadowCam));
+
+            scene.RootNode.AddChild(shadowCam);
+
+            shadowProjectionRenderTask = new ShadowProjectionRenderTask(cam, shadowCam, 
+                swapChain.RenderTarget.RenderTargets[0], 
+                ((ShadowMapRenderTask)shadowCam.RenderTask).shadowMap, 
+                ((DeferredRenderTask)cam.RenderTask).RenderTargets.RenderTargets[2],
+                ((DeferredRenderTask)cam.RenderTask).RenderTargets.RenderTargets[1],
+                ((DeferredRenderTask)cam.RenderTask).RenderTargets.RenderTargets[4]);
+                
             timer.Start();
             AddEvents();
         }
@@ -64,6 +82,8 @@ namespace Cargo
             }
             scene.Update(elapsed);
             cam.QueueRender();
+            shadowCam.QueueRender();
+            shadowProjectionRenderTask.QueueRender();
             renderer.ExecuteTasks();
             swapChain.Present();
         }

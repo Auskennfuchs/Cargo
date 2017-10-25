@@ -50,7 +50,7 @@ namespace Cargo
         }
 
         public override void QueueRender() {
-            throw new NotImplementedException();
+            Renderer.Instance.QueueTask(this);
         }
 
         public override void Render(RenderPipeline pipeline) {

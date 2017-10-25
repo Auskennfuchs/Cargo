@@ -26,7 +26,7 @@ PS_Output PSMain(VS_Output input)
 
 	output.Diffuse = float4(0, 0, 0, 1);
 	output.Normal = float4(0, 0, 0, 0);
-	output.Position = float4(0, 0, 0, 1);
+	output.Position = float4(0, 0, 1, 1);
 	output.Light = float4(0, 0, 0, 0.2f);
 
 	return output;
