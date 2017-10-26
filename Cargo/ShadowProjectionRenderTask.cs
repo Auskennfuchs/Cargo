@@ -42,6 +42,7 @@ namespace Cargo
             parameterCollection.SetParameter("colorMap", colorMap);
             parameterCollection.SetParameter("normalMap", normalMap);
             parameterCollection.SetParameter("samplerClamp", Renderer.Instance.CreateSamplerState(TextureAddressMode.Clamp, Filter.MinMagMipPoint));
+            parameterCollection.SetParameter("samplerClamp", Renderer.Instance.CreateSamplerState(TextureAddressMode.Clamp, Filter.MinMagMipPoint));
 
             /*            blendState = new BlendState(Renderer.Dev, new BlendStateDescription());
                         blendState.Description.RenderTarget[0]= new RenderTargetBlendDescription {                
@@ -78,6 +79,8 @@ namespace Cargo
             parameterCollection.SetParameter("LightProj", lightCam.ProjectionMatrix);
             parameterCollection.SetParameter("InvViewProj", sceneCam.InvViewProjectionMatrix);
             parameterCollection.SetParameter("LightPos", lightCam.Transform.Position);
+            parameterCollection.SetParameter("CameraPos", sceneCam.Transform.Position);
+            parameterCollection.SetParameter("InvProj", sceneCam.InvProjectionMatrix);
             pipeline.ParameterManager.ApplyCollection(parameterCollection);
             pipeline.ApplyOutputResources();
             pipeline.ApplyShaderResources();

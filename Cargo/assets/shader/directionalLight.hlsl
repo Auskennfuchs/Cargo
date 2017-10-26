@@ -43,8 +43,8 @@ float4 PSMain(VS_Output input) : SV_Target
 	float specularIntensity = normalSpec.a;
 
 	float4 position = PositionTextureInput.Load(int3(input.Position.xy, 0));
-	float4 pos = position / position.w;
-	pos = mul(pos, invViewProjMatrix);
+//	float4 pos = position / position.w;
+	float4 pos = mul(position, invViewProjMatrix);
 	pos /= pos.w;
 
 	float3 lightVector = -normalize(lightDir);

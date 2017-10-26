@@ -125,15 +125,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="LightRenderTask.cs" />
-    <Compile Include="LightVisualizer.cs" />
-    <Compile Include="Perlin.cs" />
     <Compile Include="PostProcessFXAA.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShadowMapRenderTask.cs" />
     <Compile Include="ShadowProjectionRenderTask.cs" />
     <Compile Include="SimpleRenderTask.cs" />
-    <Compile Include="Terrain.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

@@ -34,6 +34,12 @@ namespace CargoEngine.Scene {
             }
         }
 
+        public Matrix InvProjectionMatrix {
+            get {
+                return Matrix.Invert(ProjectionMatrix);
+            }
+        }
+
         public new void QueueRender() {
             if (RenderTask != null) {
                 RenderTask.ViewMatrix = ViewMatrix;

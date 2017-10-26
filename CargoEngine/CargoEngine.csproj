@@ -118,6 +118,11 @@
     <Compile Include="Event\MouseEvent.cs" />
     <Compile Include="Executors\DrawExecutor.cs" />
     <Compile Include="Executors\Executor.cs" />
+    <Compile Include="Geometry\Cube.cs" />
+    <Compile Include="Geometry\LightVisualizer.cs" />
+    <Compile Include="Geometry\Perlin.cs" />
+    <Compile Include="Geometry\Sphere.cs" />
+    <Compile Include="Geometry\Terrain.cs" />
     <Compile Include="InputElementList.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="Parameter\SamplerStateParameter.cs" />

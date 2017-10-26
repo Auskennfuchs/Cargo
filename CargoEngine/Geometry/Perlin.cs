@@ -1,4 +1,5 @@
-﻿namespace Cargo {
+﻿namespace CargoEngine.Geometry
+{
     public class Perlin {
 
         public static double OctavePerlin(double x, double y, double z, int octaves, double persistence) {

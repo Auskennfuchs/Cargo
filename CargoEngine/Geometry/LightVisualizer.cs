@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using CargoEngine;
 using SharpDX;
 
-namespace Cargo
+namespace CargoEngine.Geometry
 {
-    class LightVisualizer : EntityComponent
+    public class LightVisualizer : EntityComponent
     {
         private Mesh mesh;
 
@@ -60,6 +60,8 @@ namespace Cargo
                 new Vector3( 1.0f, 1.0f, 1.0f),
             };
             mesh.Vertices = verts;
+            mesh.Normals = new Vector3[24];
+            mesh.UVs = new Vector2[24];
             mesh.Topology = Topology.LineList;
 
             vs = Renderer.ShaderLoader.LoadVertexShader("assets/shader/simple.hlsl", "VSMain");
@@ -71,9 +73,12 @@ namespace Cargo
         }
 
         public override void Render(RenderPipeline pipeline) {
+            var cam = (Camera)Parent;
+            mat = Matrix.Multiply(cam.ViewMatrix, cam.ProjectionMatrix);
+            mat.Invert();
             pipeline.ParameterManager.SetWorldMatrix(mat);
-            pipeline.VertexShader.Shader = vs;
-            pipeline.PixelShader.Shader = ps;
+//            pipeline.VertexShader.Shader = vs;
+//            pipeline.PixelShader.Shader = ps;
             mesh.Apply(pipeline);
             pipeline.ApplyShaderResources();
             pipeline.Draw(mesh.VertexCount, 0);

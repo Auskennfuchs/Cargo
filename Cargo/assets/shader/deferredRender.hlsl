@@ -49,7 +49,7 @@ PS_Output PSMain(VS_Output input)
 
 	output.Diffuse = float4(diffuse, 1);
 	output.Normal = float4(input.Normal/2.0f+0.5f, 1);
-	output.Position = input.Position/input.Position.w;
+	output.Position = 1-input.Position.z / input.Position.w;
 
 	return output;
 }

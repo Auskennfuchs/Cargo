@@ -48,24 +48,17 @@ float4 PSMain(VS_Output input) : SV_Target
 
 	float3 lPos = getLightPos(wPos);
 
-	if ((saturate(lPos.x) != lPos.x) || (saturate(lPos.y) != lPos.y) || (saturate(lPos.z) != lPos.z)) {
-		return colorValue;
+	if ((saturate(lPos.x) == lPos.x) && (saturate(lPos.y) == lPos.y)) {
+		lPos.x = lPos.x / 2.0f + 0.5f;
+		lPos.y = -lPos.y / 2.0f + 0.5f;
+
+		float shadowDepthValue = shadowMap.Sample(samplerClamp, lPos.xy).r;
+		if (shadowDepthValue < lPos.z) {
+			return colorValue*float4(1.0f, 0, 0, 1.0f);
+		}
 	}
 
-	lPos.x = lPos.x / 2.0f + 0.5f;
-	lPos.y = lPos.y / 2.0f + 0.5f;
-
-	float shadowDepthValue = shadowMap.Sample(samplerClamp, lPos.xy).r;
-	if (shadowDepthValue < lPos.z) {
-		return colorValue;
-	}
-	float3 normal = normalMap.Sample(samplerClamp, input.UV).xyz;
-	normal.xyz *= 2.0f;
-	normal.xyz -= 1.0f;
-
-	float3 L = normalize(lPos - wPos.xyz);
-	float NdotL = dot(L, normalize(normal));
-	return colorValue*float4(1.0f,NdotL,NdotL,1.0f);
+	return colorValue;
 
 /*	float3 eyeDir = position.xyz - CameraPosition;
 	float shadow = readShadowMap(eyeDir);

@@ -37,14 +37,24 @@ namespace CargoEngine
             }
         }
 
-        public RenderTarget(int width, int height, Format format) {
+        public RenderTarget(int width, int height, Format format) : this(width, height, format, format) {
+        }
+
+        public RenderTarget(int width, int height, Format format, Format srvFormat) {
             Dimension = Texture.Dimension.Texture2D;
             Width = width;
             Height = height;
             Format = format;
             using (var tex = CreateRenderTargetTexture()) {
                 View = new RenderTargetView(Renderer.Instance.Device, tex);
-                SRV = new ShaderResourceView(Renderer.Instance.Device, tex);
+                SRV = new ShaderResourceView(Renderer.Instance.Device, tex, new ShaderResourceViewDescription {
+                    Format = srvFormat,
+                    Dimension = SharpDX.Direct3D.ShaderResourceViewDimension.Texture2D,
+                    Texture2D = new ShaderResourceViewDescription.Texture2DResource {
+                        MipLevels = 1,
+                        MostDetailedMip = 0,
+                    }
+                });
             }
         }
 
@@ -163,6 +173,11 @@ namespace CargoEngine
 
         public void AddRenderTarget(Format format) {
             var rtv = new RenderTarget(Width, Height, format);
+            RenderTargets.Add(rtv);
+        }
+
+        public void AddRenderTarget(Format format, Format srvFormat) {
+            var rtv = new RenderTarget(Width, Height, format, srvFormat);
             RenderTargets.Add(rtv);
         }
 

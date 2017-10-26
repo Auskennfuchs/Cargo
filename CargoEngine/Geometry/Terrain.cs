@@ -4,9 +4,9 @@ using CargoEngine.Texture;
 using SharpDX;
 using SharpDX.Direct3D11;
 
-namespace Cargo
+namespace CargoEngine.Geometry
 {
-    class Terrain : SceneNode
+    public class Terrain : SceneNode
     {
         private const uint MAP_SIZE = 512;
         private const uint CHUNK_SIZE = 128;

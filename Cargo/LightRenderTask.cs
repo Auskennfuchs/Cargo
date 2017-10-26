@@ -22,7 +22,7 @@ namespace Cargo
             vsDirectional = Renderer.Instance.Shaders.LoadVertexShader("assets/shader/directionalLight.hlsl", "VSMain");
             psDirectional = Renderer.Instance.Shaders.LoadPixelShader("assets/shader/directionalLight.hlsl", "PSMain");
 
-            parameterCollection.SetParameter("lightDir", new Vector3(0.0f, -1.0f, -1.0f));
+            parameterCollection.SetParameter("lightDir", new Vector3(1.0f, -.5f, 0.0f));
             parameterCollection.SetParameter("lightColor", new Color3(1.0f, 1.0f, 1.0f));
             parameterCollection.SetParameter("ambientColor", new Color3(0.2f, 0.2f, 0.2f));
             parameterCollection.SetParameter("NormalTextureInput", normalTarget);

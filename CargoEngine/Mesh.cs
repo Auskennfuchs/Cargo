@@ -118,6 +118,8 @@ namespace CargoEngine
         private Buffer indexBuffer;
         private Format indexBufferFormat;
 
+        private readonly Object thisLock = new Object();
+
         public Mesh() {
 
         }
@@ -169,42 +171,45 @@ namespace CargoEngine
             foreach (var n in normals) {
                 n.Normalize();
             }
+            Modified = true;
         }
 
         private void UpdateBuffers() {
-            if (!Modified) {
-                // nothing to do here
-                return;
-            }
-            Clear();
-            Modified = false;
-
-            if (Vertices != null && Vertices.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Vertices), "POSITION", Format.R32G32B32_Float);
-            }
-            if (Normals != null && Normals.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Normals), "NORMAL", Format.R32G32B32_Float);
-            }
-            if (UVs != null && UVs.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, UVs), "TEXCOORD", Format.R32G32_Float);
-            }
-            if (BiNormals != null && BiNormals.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, BiNormals), "BINORMAL", Format.R32G32B32_Float);
-            }
-            if (Tangents != null && Tangents.Length > 0) {
-                AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Tangents), "TANGENT", Format.R32G32B32_Float);
-            }
-
-            if (Indices != null && Indices.Length > 0) {
-                NumIndices = Indices.Length;
-                if (VertexCount <= ushort.MaxValue) {
-                    indexBuffer = Buffer.Create(Renderer.Instance.Device, BindFlags.IndexBuffer, Array.ConvertAll(Indices, i => (ushort)i));
-                    indexBufferFormat = Format.R16_UInt;
+            lock (thisLock) {
+                if (!Modified) {
+                    // nothing to do here
+                    return;
                 }
-                else {
-                    indexBuffer = Buffer.Create(Renderer.Instance.Device, BindFlags.IndexBuffer, Indices);
-                    indexBufferFormat = Format.R32_UInt;
+                Clear();
+
+                if (Vertices != null && Vertices.Length > 0) {
+                    AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Vertices), "POSITION", Format.R32G32B32_Float);
                 }
+                if (Normals != null && Normals.Length > 0) {
+                    AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Normals), "NORMAL", Format.R32G32B32_Float);
+                }
+                if (UVs != null && UVs.Length > 0) {
+                    AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, UVs), "TEXCOORD", Format.R32G32_Float);
+                }
+                if (BiNormals != null && BiNormals.Length > 0) {
+                    AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, BiNormals), "BINORMAL", Format.R32G32B32_Float);
+                }
+                if (Tangents != null && Tangents.Length > 0) {
+                    AddBuffer(Buffer.Create(Renderer.Instance.Device, BindFlags.VertexBuffer, Tangents), "TANGENT", Format.R32G32B32_Float);
+                }
+
+                if (Indices != null && Indices.Length > 0) {
+                    NumIndices = Indices.Length;
+                    if (VertexCount <= ushort.MaxValue) {
+                        indexBuffer = Buffer.Create(Renderer.Instance.Device, BindFlags.IndexBuffer, Array.ConvertAll(Indices, i => (ushort)i));
+                        indexBufferFormat = Format.R16_UInt;
+                    }
+                    else {
+                        indexBuffer = Buffer.Create(Renderer.Instance.Device, BindFlags.IndexBuffer, Indices);
+                        indexBufferFormat = Format.R32_UInt;
+                    }
+                }
+                Modified = false;
             }
         }
 

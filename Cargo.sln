@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cargo", "Cargo\Cargo.csproj", "{9A60A255-8E3E-4A62-A89A-D9F2E3CE7EFE}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -11,6 +11,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CargoEngine", "CargoEngine\CargoEngine.csproj", "{236AEBEA-6D88-4C2B-A2D4-566813B4C99A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdapterEnum", "AdapterEnum\AdapterEnum.csproj", "{FAE7C729-FABD-4AFC-B452-CFF1DA25EDD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowTest", "ShadowTest\ShadowTest.csproj", "{30A8336B-33C8-4204-A325-F18B3AC4921A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{236AEBEA-6D88-4C2B-A2D4-566813B4C99A} = {236AEBEA-6D88-4C2B-A2D4-566813B4C99A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +63,18 @@ Global
 		{FAE7C729-FABD-4AFC-B452-CFF1DA25EDD1}.Release|x64.Build.0 = Release|x64
 		{FAE7C729-FABD-4AFC-B452-CFF1DA25EDD1}.Release|x86.ActiveCfg = Release|Any CPU
 		{FAE7C729-FABD-4AFC-B452-CFF1DA25EDD1}.Release|x86.Build.0 = Release|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Debug|x64.Build.0 = Debug|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Debug|x86.Build.0 = Debug|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Release|x64.ActiveCfg = Release|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Release|x64.Build.0 = Release|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Release|x86.ActiveCfg = Release|Any CPU
+		{30A8336B-33C8-4204-A325-F18B3AC4921A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

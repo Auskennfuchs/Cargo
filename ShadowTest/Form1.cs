@@ -1,12 +1,18 @@
-﻿using System;
-using System.Windows.Forms;
-using CargoEngine;
+﻿using CargoEngine;
 using CargoEngine.Event;
+using CargoEngine.Geometry;
 using CargoEngine.Scene;
 using SharpDX;
-using CargoEngine.Geometry;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace Cargo
+namespace ShadowTest
 {
     public partial class Form1 : Form
     {
@@ -16,28 +22,51 @@ namespace Cargo
 
         private Scene scene;
 
-        private Camera cam, shadowCam;
-
-        private CargoEngine.Timer timer = new CargoEngine.Timer();
-
         private EventManager eventManager = new EventManager();
 
         private int fpsCount;
         private float fpsTimeCount;
+        private CargoEngine.Timer timer = new CargoEngine.Timer();
 
-        private RenderTask shadowProjectionRenderTask;
+        private Camera cam, shadowCam;
+
+        float sinCount = 0;
 
         public Form1() {
             InitializeComponent();
+            InitEngine();
+        }
+
+        private void InitEngine() {
             renderer = new Renderer();
             swapChain = new CargoEngine.SwapChain(this, renderer);
             swapChain.RenderTarget.AddDepthStencil();
 
+            AddEvents();
+
             scene = new Scene();
+
+            shadowCam = new Camera();
+            shadowCam.Transform.SetLookAt(new Vector3(50.0f, 200.0f, 256.0f), new Vector3(256.0f, 0.0f, 256.0f), Vector3.ForwardLH);
+            shadowCam.SetProjection(0.1f, 500.0f, 1.0f, (float)Math.PI / 4.0f);
+            shadowCam.RenderTask = new ShadowMapRenderTask();
+            shadowCam.Scene = scene;
+                       shadowCam.AddComponent(new LightVisualizer(shadowCam));
+            scene.RootNode.AddChild(shadowCam);
+
+            cam = new Camera();
+            cam.Transform.Position = new Vector3(0, 50.0f, 0.0f);
+            cam.SetProjection(0.1f, 1000.0f, (float)this.Width / (float)this.Height, (float)Math.PI / 4.0f);
+            cam.RenderTask = new BasicRenderTask(swapChain.RenderTarget, ((ShadowMapRenderTask)shadowCam.RenderTask).srv, shadowCam);
+            cam.Scene = scene;
+            cam.AddComponent(new FreeLookComponent(eventManager));
+            cam.AddComponent(new FreeMoveComponent(eventManager) {
+                Speed = 20.0f
+            });
+            scene.RootNode.AddChild(cam);
 
             var terrain = new Terrain();
             scene.RootNode.AddChild(terrain);
-            //            terrain.Transform.Scale = new Vector3(3.0f, 3.0f, 3.0f);
 
             var sphere = new Sphere();
             sphere.Transform.Position = new Vector3(256, 60, 256);
@@ -54,35 +83,7 @@ namespace Cargo
             cube.Transform.Scale = new Vector3(15, 15, 15);
             scene.RootNode.AddChild(cube);
 
-            cam = new Camera();
-            cam.Transform.Position = new Vector3(0, 50.0f, 0.0f);
-            cam.SetProjection(0.1f, 1000.0f, (float)this.Width / (float)this.Height, (float)Math.PI / 4.0f);
-            cam.RenderTask = new DeferredRenderTask(swapChain);
-            cam.Scene = scene;
-            cam.AddComponent(new FreeLookComponent(eventManager));
-            cam.AddComponent(new FreeMoveComponent(eventManager) {
-                Speed = 20.0f
-            });
-            scene.RootNode.AddChild(cam);
-
-            shadowCam = new Camera();
-            shadowCam.Transform.SetLookAt(new Vector3(100.0f, 100.0f, 256.0f),new Vector3(256.0f,0.0f,256.0f), Vector3.Up);
-            shadowCam.SetProjection(0.1f, 200.0f, 1.0f, (float)Math.PI / 2.0f);
-            shadowCam.RenderTask = new ShadowMapRenderTask();
-            shadowCam.Scene = scene;
-            shadowCam.AddComponent(new LightVisualizer(shadowCam));
-
-            scene.RootNode.AddChild(shadowCam);
-
-            shadowProjectionRenderTask = new ShadowProjectionRenderTask(cam, shadowCam, 
-                swapChain.RenderTarget.RenderTargets[0], 
-                ((ShadowMapRenderTask)shadowCam.RenderTask).shadowMap, 
-                ((DeferredRenderTask)cam.RenderTask).RenderTargets.RenderTargets[2],
-                ((DeferredRenderTask)cam.RenderTask).RenderTargets.RenderTargets[1],
-                ((DeferredRenderTask)cam.RenderTask).RenderTargets.RenderTargets[4]);
-                
             timer.Start();
-            AddEvents();
         }
 
         public void MainLoop() {
@@ -90,26 +91,24 @@ namespace Cargo
             float elapsed = timer.Restart();
             fpsTimeCount += elapsed;
             if (fpsTimeCount > 1.0f) {
-                var fxaa = ((DeferredRenderTask)cam.RenderTask).FXAA;
+                //                var fxaa = ((DeferredRenderTask)cam.RenderTask).FXAA;
                 var fps = fpsCount / fpsTimeCount;
                 var renderTime = (fpsTimeCount / fpsCount * 1000.0f);
-                this.Text = renderTime.ToString() + "ms (" + fps.ToString() + " fps) FXAA:" + (fxaa ? "enabled" : "disabled");
+                this.Text = renderTime.ToString() + "ms (" + fps.ToString() + " fps)";
                 fpsTimeCount = 0;
                 fpsCount = 0;
             }
+            sinCount += elapsed;
+            shadowCam.Transform.SetLookAt(new Vector3(256+150.0f*(float)Math.Sin(sinCount), 200.0f, 256.0f), new Vector3(256.0f, 0.0f, 256.0f), Vector3.ForwardLH);
             scene.Update(elapsed);
-            cam.QueueRender();
             shadowCam.QueueRender();
-            shadowProjectionRenderTask.QueueRender();
+            cam.QueueRender();
             renderer.ExecuteTasks();
             swapChain.Present();
         }
 
-        private void OnClose(object sender, FormClosingEventArgs e) {
-            //wait for last Frame to finish
-            while (Renderer.Instance.RenderingInProgress) { }
 
-            cam.RenderTask.Dispose();
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
             scene.Clear();
             swapChain.Dispose();
             renderer.Dispose();
@@ -131,9 +130,6 @@ namespace Cargo
                     Control = e.Control,
                     Shift = e.Shift
                 }));
-                if (e.KeyCode == Keys.F) {
-                    ((DeferredRenderTask)cam.RenderTask).FXAA = !((DeferredRenderTask)cam.RenderTask).FXAA;
-                }
             };
 
             this.MouseDown += (o, e) => {

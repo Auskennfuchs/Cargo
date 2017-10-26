@@ -8,7 +8,7 @@ struct PS_Output
 {
 	float4 Diffuse : SV_Target0;
 	float4 Normal : SV_Target1;
-	float4 Position : SV_Target2;
+	float Position : SV_Target2;
 	float4 Light : SV_Target3;
 };
 
@@ -26,7 +26,7 @@ PS_Output PSMain(VS_Output input)
 
 	output.Diffuse = float4(0, 0, 0, 1);
 	output.Normal = float4(0, 0, 0, 0);
-	output.Position = float4(0, 0, 1, 1);
+	output.Position = 1.0f;
 	output.Light = float4(0, 0, 0, 0.2f);
 
 	return output;

@@ -39,7 +39,7 @@ namespace Cargo
             this.swapChain = swapChain;
             RenderTargets = new RenderTargetGroup(swapChain, Format.R8G8B8A8_UNorm); // Albedo
             RenderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Normals
-            RenderTargets.AddRenderTarget(Format.R16G16B16A16_Float); //Position
+            RenderTargets.AddRenderTarget(Format.R32_Float, Format.R32_Float); //Position
             RenderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Light
             RenderTargets.AddRenderTarget(Format.R8G8B8A8_UNorm); //Combine
             RenderTargets.AddDepthStencil();
